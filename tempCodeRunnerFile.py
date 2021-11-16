@@ -1,2 +1,1 @@
-        return self.readletter
-
+myWin.Userlist()

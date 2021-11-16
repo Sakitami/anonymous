@@ -51,7 +51,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>2</number>
+     <number>0</number>
     </property>
     <widget class="QWidget" name="tab">
      <attribute name="title">
@@ -94,7 +94,7 @@
              <item>
               <widget class="QLabel" name="label_3">
                <property name="text">
-                <string>Sakitami</string>
+                <string>未登录</string>
                </property>
               </widget>
              </item>
@@ -112,7 +112,7 @@
              <item>
               <widget class="QLabel" name="label_5">
                <property name="text">
-                <string>在线</string>
+                <string>离线</string>
                </property>
               </widget>
              </item>
@@ -145,16 +145,6 @@
          <property name="title">
           <string>匿名名片</string>
          </property>
-         <widget class="QTableView" name="tableView">
-          <property name="geometry">
-           <rect>
-            <x>10</x>
-            <y>10</y>
-            <width>251</width>
-            <height>81</height>
-           </rect>
-          </property>
-         </widget>
          <widget class="QWidget" name="horizontalLayoutWidget_5">
           <property name="geometry">
            <rect>
@@ -176,6 +166,16 @@
             </widget>
            </item>
           </layout>
+         </widget>
+         <widget class="QTableWidget" name="tableWidget">
+          <property name="geometry">
+           <rect>
+            <x>10</x>
+            <y>20</y>
+            <width>251</width>
+            <height>71</height>
+           </rect>
+          </property>
          </widget>
         </widget>
        </item>
@@ -347,7 +347,7 @@
       </property>
       <layout class="QHBoxLayout" name="horizontalLayout_11">
        <item>
-        <widget class="QListView" name="listView"/>
+        <widget class="QListWidget" name="listWidget"/>
        </item>
        <item>
         <layout class="QVBoxLayout" name="verticalLayout_5">
@@ -405,7 +405,7 @@
        <rect>
         <x>10</x>
         <y>270</y>
-        <width>261</width>
+        <width>320</width>
         <height>41</height>
        </rect>
       </property>
@@ -435,6 +435,13 @@
         <widget class="QPushButton" name="pushButton_8">
          <property name="text">
           <string>查看信件</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="pushButton_2">
+         <property name="text">
+          <string>手动刷新</string>
          </property>
         </widget>
        </item>
@@ -602,7 +609,7 @@
      </rect>
     </property>
     <property name="text">
-     <string>|Sakitami|已连接到服务器|目前有0封未读信件|已发送0封匿名信|请使用MarkDown语法书写信件|</string>
+     <string>|匿名信v0.0.1|请使用MarkDown语法书写信件|</string>
     </property>
    </widget>
   </widget>

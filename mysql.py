@@ -5,6 +5,8 @@ import pickle
 
 class Mysql():
     def __init__(self):
+        ## 获取当前文件目录
+        self.catalog = os.getcwd()
         ## 初始化命令列表
         self.command = ['select * from letter;','select * from user','insert into letter values (21103310,1)']
         ## 连接Mysql数据库
@@ -38,6 +40,24 @@ class Mysql():
         print("登陆成功!")
         return 1
 
+    ## 用户注册
+    def useregister(self,id:str,password:str):
+        self.id=id
+        self.password=password
+        try:
+            self.checkid = pd.read_sql_query(f"SELECT * from user WHERE id = '{str(self.id)}'",self.engine).values.tolist()
+            print(self.checkid)
+            #return 0
+        except:
+            print("网络错误")
+        if self.checkid != []:
+            print("已被占用的id")
+            return 2
+        try:
+            self.doregister = pd.read_sql_query(f"INSERT INTO `user` (`id`, `password`, `status`, `nick1`, `nick2`, `nick3`, `nick_enable`) VALUES ('{str(self.id)}', '{str(self.password)}', '0', '', '', '', '');",self.engine)
+        except:
+            print("注册成功")
+            return 1
     ## 读取用户列表
     def readuserlist(self):
         ## 执行SQL查询语句,并返回列表
@@ -48,16 +68,15 @@ class Mysql():
             return 0
         ## 将用户列表保存到本地
         try:
-            os.remove('anonymous\\bin\\user.pkl')
+            os.remove(self.catalog+'\\bin\\user.pkl')
         except:
             pass
         finally:
-            self.userlistfile = open('anonymous\\bin\\user.pkl','w')
+            self.userlistfile = open(self.catalog+'\\bin\\user.pkl','w')
             self.userlistfile.close()
-            with open('anonymous\\bin\\user.pkl','wb') as f:
+            with open(self.catalog+'\\bin\\user.pkl','wb') as f:
                 pickle.dump(self.readuser,f)
         return 1
-    
     ## 读取信件
     def readmessage(self,id:str):
         ## 接收用户id
@@ -83,13 +102,15 @@ class Mysql():
         ## 将信件保存到本地
         return 1
 
+    ## 发送信件
     def sendmessage(self,messages:str):
         self.sendmes = messages
 
 if __name__ == '__main__':
     test = Mysql()
-    test.readmessage(str(21103307))
+    #test.readmessage(str(21103307))
     #test.readuserlist()
+    test.useregister('wrewr','4DA6EDB16DAD7148938AC3463EDACD62')
     #test.sendmessage('Hello World!')
     #print(test.readmessage()[0][2])
     #for i in test.readmessage():

@@ -1,6 +1,6 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'main.ui'
+# Form implementation generated from reading ui file 'C:\Users\sakitami\工作\Github\anonymous\main.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.6
 #
@@ -9,7 +9,6 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtGui import QStandardItemModel
 
 
 class Ui_MainWindow(object):
@@ -72,9 +71,6 @@ class Ui_MainWindow(object):
         self.horizontalLayout_4.addWidget(self.groupBox)
         self.groupBox_2 = QtWidgets.QGroupBox(self.horizontalLayoutWidget_4)
         self.groupBox_2.setObjectName("groupBox_2")
-        self.tableView = QtWidgets.QTableView(self.groupBox_2)
-        self.tableView.setGeometry(QtCore.QRect(10, 10, 251, 81))
-        self.tableView.setObjectName("tableView")
         self.horizontalLayoutWidget_5 = QtWidgets.QWidget(self.groupBox_2)
         self.horizontalLayoutWidget_5.setGeometry(QtCore.QRect(10, 99, 251, 21))
         self.horizontalLayoutWidget_5.setObjectName("horizontalLayoutWidget_5")
@@ -87,6 +83,11 @@ class Ui_MainWindow(object):
         self.pushButton = QtWidgets.QPushButton(self.horizontalLayoutWidget_5)
         self.pushButton.setObjectName("pushButton")
         self.horizontalLayout_5.addWidget(self.pushButton)
+        self.tableWidget = QtWidgets.QTableWidget(self.groupBox_2)
+        self.tableWidget.setGeometry(QtCore.QRect(10, 20, 251, 71))
+        self.tableWidget.setObjectName("tableWidget")
+        self.tableWidget.setColumnCount(0)
+        self.tableWidget.setRowCount(0)
         self.horizontalLayout_4.addWidget(self.groupBox_2)
         self.horizontalLayoutWidget_6 = QtWidgets.QWidget(self.tab)
         self.horizontalLayoutWidget_6.setGeometry(QtCore.QRect(10, 150, 551, 131))
@@ -178,9 +179,9 @@ class Ui_MainWindow(object):
         self.horizontalLayout_11 = QtWidgets.QHBoxLayout(self.horizontalLayoutWidget_8)
         self.horizontalLayout_11.setContentsMargins(0, 0, 0, 0)
         self.horizontalLayout_11.setObjectName("horizontalLayout_11")
-        self.listView = QtWidgets.QListView(self.horizontalLayoutWidget_8)
-        self.listView.setObjectName("listView")
-        self.horizontalLayout_11.addWidget(self.listView)
+        self.listWidget = QtWidgets.QListWidget(self.horizontalLayoutWidget_8)
+        self.listWidget.setObjectName("listWidget")
+        self.horizontalLayout_11.addWidget(self.listWidget)
         self.verticalLayout_5 = QtWidgets.QVBoxLayout()
         self.verticalLayout_5.setObjectName("verticalLayout_5")
         self.radioButton_3 = QtWidgets.QRadioButton(self.horizontalLayoutWidget_8)
@@ -201,11 +202,8 @@ class Ui_MainWindow(object):
         self.tableView_3 = QtWidgets.QTableView(self.tab_3)
         self.tableView_3.setGeometry(QtCore.QRect(10, 10, 541, 261))
         self.tableView_3.setObjectName("tableView_3")
-        #elf.letterlist=QStandardItemModel(10,4)
-        #self.letterlist.setHorizontalHeaderLabels(['发件人','是否已读','发件时间','清除时间'])
-        #self.tableView_3.setModel(self.letterlist)
         self.horizontalLayoutWidget_9 = QtWidgets.QWidget(self.tab_3)
-        self.horizontalLayoutWidget_9.setGeometry(QtCore.QRect(10, 270, 261, 41))
+        self.horizontalLayoutWidget_9.setGeometry(QtCore.QRect(10, 270, 320, 41))
         self.horizontalLayoutWidget_9.setObjectName("horizontalLayoutWidget_9")
         self.horizontalLayout_12 = QtWidgets.QHBoxLayout(self.horizontalLayoutWidget_9)
         self.horizontalLayout_12.setContentsMargins(0, 0, 0, 0)
@@ -222,6 +220,9 @@ class Ui_MainWindow(object):
         self.pushButton_8 = QtWidgets.QPushButton(self.horizontalLayoutWidget_9)
         self.pushButton_8.setObjectName("pushButton_8")
         self.horizontalLayout_12.addWidget(self.pushButton_8)
+        self.pushButton_2 = QtWidgets.QPushButton(self.horizontalLayoutWidget_9)
+        self.pushButton_2.setObjectName("pushButton_2")
+        self.horizontalLayout_12.addWidget(self.pushButton_2)
         self.tabWidget.addTab(self.tab_3, "")
         self.tab_4 = QtWidgets.QWidget()
         self.tab_4.setObjectName("tab_4")
@@ -310,7 +311,7 @@ class Ui_MainWindow(object):
         self.label_4.setText(_translate("MainWindow", "状态:"))
         self.label_5.setText(_translate("MainWindow", "离线"))
         self.label_6.setText(_translate("MainWindow", "匿名名片:"))
-        self.label_7.setText(_translate("MainWindow", "Anonymous"))
+        self.label_7.setText(_translate("MainWindow", "BlackCat"))
         self.groupBox_2.setTitle(_translate("MainWindow", "匿名名片"))
         self.pushButton.setText(_translate("MainWindow", "添加/删除"))
         self.groupBox_3.setTitle(_translate("MainWindow", "登录"))
@@ -332,6 +333,7 @@ class Ui_MainWindow(object):
         self.pushButton_6.setText(_translate("MainWindow", "删除信件"))
         self.pushButton_7.setText(_translate("MainWindow", "双向删除"))
         self.pushButton_8.setText(_translate("MainWindow", "查看信件"))
+        self.pushButton_2.setText(_translate("MainWindow", "手动刷新"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_3), _translate("MainWindow", "我的信件"))
         self.label_12.setText(_translate("MainWindow", "To:"))
         self.label_13.setText(_translate("MainWindow", "By:"))
@@ -345,4 +347,4 @@ class Ui_MainWindow(object):
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_4), _translate("MainWindow", "发送信件"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_5), _translate("MainWindow", "设置"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_6), _translate("MainWindow", "关于"))
-        self.label.setText(_translate("MainWindow", "|匿名信v1.0.0|请使用MarkDown语法书写信件|"))
+        self.label.setText(_translate("MainWindow", "|匿名信v0.0.1|请使用MarkDown语法书写信件|"))
