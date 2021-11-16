@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-# Form implementation generated from reading ui file 'C:\Users\sakitami\工作\Github\anonymous\main.ui'
+# Form implementation generated from reading ui file 'C:\Users\sakitami\工作\学习\匿名信\userinterface\main.ui'
 #
 # Created by: PyQt5 UI code generator 5.15.6
 #
@@ -83,11 +83,9 @@ class Ui_MainWindow(object):
         self.pushButton = QtWidgets.QPushButton(self.horizontalLayoutWidget_5)
         self.pushButton.setObjectName("pushButton")
         self.horizontalLayout_5.addWidget(self.pushButton)
-        self.tableWidget = QtWidgets.QTableWidget(self.groupBox_2)
-        self.tableWidget.setGeometry(QtCore.QRect(10, 20, 251, 71))
-        self.tableWidget.setObjectName("tableWidget")
-        self.tableWidget.setColumnCount(0)
-        self.tableWidget.setRowCount(0)
+        self.listWidget_2 = QtWidgets.QListWidget(self.groupBox_2)
+        self.listWidget_2.setGeometry(QtCore.QRect(10, 20, 251, 71))
+        self.listWidget_2.setObjectName("listWidget_2")
         self.horizontalLayout_4.addWidget(self.groupBox_2)
         self.horizontalLayoutWidget_6 = QtWidgets.QWidget(self.tab)
         self.horizontalLayoutWidget_6.setGeometry(QtCore.QRect(10, 150, 551, 131))
@@ -182,20 +180,6 @@ class Ui_MainWindow(object):
         self.listWidget = QtWidgets.QListWidget(self.horizontalLayoutWidget_8)
         self.listWidget.setObjectName("listWidget")
         self.horizontalLayout_11.addWidget(self.listWidget)
-        self.verticalLayout_5 = QtWidgets.QVBoxLayout()
-        self.verticalLayout_5.setObjectName("verticalLayout_5")
-        self.radioButton_3 = QtWidgets.QRadioButton(self.horizontalLayoutWidget_8)
-        self.radioButton_3.setChecked(True)
-        self.radioButton_3.setObjectName("radioButton_3")
-        self.verticalLayout_5.addWidget(self.radioButton_3)
-        self.radioButton_2 = QtWidgets.QRadioButton(self.horizontalLayoutWidget_8)
-        self.radioButton_2.setChecked(False)
-        self.radioButton_2.setObjectName("radioButton_2")
-        self.verticalLayout_5.addWidget(self.radioButton_2)
-        self.radioButton = QtWidgets.QRadioButton(self.horizontalLayoutWidget_8)
-        self.radioButton.setObjectName("radioButton")
-        self.verticalLayout_5.addWidget(self.radioButton)
-        self.horizontalLayout_11.addLayout(self.verticalLayout_5)
         self.tabWidget.addTab(self.tab_2, "")
         self.tab_3 = QtWidgets.QWidget()
         self.tab_3.setObjectName("tab_3")
@@ -311,7 +295,7 @@ class Ui_MainWindow(object):
         self.label_4.setText(_translate("MainWindow", "状态:"))
         self.label_5.setText(_translate("MainWindow", "离线"))
         self.label_6.setText(_translate("MainWindow", "匿名名片:"))
-        self.label_7.setText(_translate("MainWindow", "BlackCat"))
+        self.label_7.setText(_translate("MainWindow", "未登录"))
         self.groupBox_2.setTitle(_translate("MainWindow", "匿名名片"))
         self.pushButton.setText(_translate("MainWindow", "添加/删除"))
         self.groupBox_3.setTitle(_translate("MainWindow", "登录"))
@@ -324,9 +308,6 @@ class Ui_MainWindow(object):
         self.label_15.setText(_translate("MainWindow", "确认:  "))
         self.pushButton_10.setText(_translate("MainWindow", "注册"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab), _translate("MainWindow", "状态"))
-        self.radioButton_3.setText(_translate("MainWindow", "全部用户"))
-        self.radioButton_2.setText(_translate("MainWindow", "在线用户"))
-        self.radioButton.setText(_translate("MainWindow", "离线用户"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_2), _translate("MainWindow", "用户列表"))
         self.tableView_3.setToolTip(_translate("MainWindow", "<html><head/><body><p><br/></p></body></html>"))
         self.pushButton_5.setText(_translate("MainWindow", "标记已读"))

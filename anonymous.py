@@ -2,10 +2,11 @@ import sys
 from PyQt5.QtGui import QStandardItemModel
 from PyQt5.QtWidgets import QApplication, QMainWindow
 from PyQt5 import QtCore
-from PyQt5.QtCore import QThread, Qt,pyqtBoundSignal
+from PyQt5.QtCore import QThread,pyqtBoundSignal
 from window import Ui_MainWindow
 from mysql import Mysql
 from user import Users
+import time
 import hashlib
 
 class MyMainForm(QMainWindow, Ui_MainWindow):
@@ -16,10 +17,21 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
         self.letterlist.setHorizontalHeaderLabels(['发件人','是否已读','发件时间','清除时间'])
         self.tableView_3.setModel(self.letterlist)
 
+
+        # 该部分为前后端连接
         ## 点击登录按钮
         self.pushButton_9.clicked.connect(self.Login)
         ## 点击注册按钮
         self.pushButton_10.clicked.connect(self.Register)
+        ## 点击添加/删除按钮
+        self.pushButton.clicked.connect(self.EditAny)
+
+    ## 启动修改匿名线程
+    def EditAny(self):
+        self.pushButton.setDisabled(True)
+        self.lineEdit.setDisabled(True)
+        self.EditAny_QThread = EditanyThread()
+        self.EditAny_QThread.start()
 
     ## 启动登录线程
     def Login(self):
@@ -35,6 +47,7 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
     def Userlist(self):
         self.Userlist_QThread = UserlistThread()
         self.Userlist_QThread.start()
+        self.Userlist_QThread.wait()
 
     ## 启动注册线程
     def Register(self):
@@ -45,6 +58,41 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
         self.lineEdit_8.setEnabled(False)
         self.Register_QThread = RegisterThread()
         self.Register_QThread.start()
+
+
+## 匿名名片显示线程逻辑实现
+class AnonymousShowThread(QThread):
+    trigger = pyqtBoundSignal(str)
+    def __init__(self):
+        self.showanyuserid = (str(myWin.lineEdit_5.text()))
+        super(AnonymousShowThread,self).__init__()
+    def run(self):
+        self.anylist = controller.gainany(self.showanyuserid)
+        myWin.label_7.setText(self.anylist.pop())
+        print(self.anylist)
+        myWin.listWidget_2.addItems(self.anylist)
+        pass ## TODO 展示匿名名片
+
+## 修改匿名线程逻辑实现
+class EditanyThread(QThread):
+    trigger = pyqtBoundSignal(str)
+    def __init__(self):
+        super(EditanyThread,self).__init__()
+    def run(self):
+        pass ## TODO 修改匿名功能
+
+## 同步线程
+class SyncThread(QThread):
+    ## 线程信号
+    trigger = pyqtBoundSignal(str)
+    def __init__(self):
+        super(SyncThread,self).__init__()
+    def run(self):
+        while True:
+            #time.sleep(60)
+            myWin.Userlist()
+            print('被执行')
+            time.sleep(60)
 
 ## 注册线程逻辑实现
 class RegisterThread(QThread):
@@ -109,7 +157,10 @@ class LoginThread(QThread):
             myWin.label_3.setText(userid)
             myWin.label_5.setText("在线")
             myWin.Userlist()
-            pass
+            ceshishow = AnonymousShowThread()
+            ceshishow.start()
+            self.Sync_QThread = SyncThread()
+            self.Sync_QThread.start()
         elif login_result == 0:  ## 网络错误
             myWin.pushButton_9.setEnabled(True)
             myWin.pushButton_9.setText("网络错误")
@@ -139,6 +190,7 @@ class UserlistThread(QThread):
             else:
                 self.userlist.append(str(i[0])+'|离线')
        #for i in self.userlist:
+        myWin.listWidget.clear()
         myWin.listWidget.addItems(self.userlist)
 
 if __name__ == "__main__":

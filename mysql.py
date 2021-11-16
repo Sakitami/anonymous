@@ -13,6 +13,18 @@ class Mysql():
         self.engine = create_engine('mysql+pymysql://client:02e0be72e034672d2ba5c5b029b7ff2d12345678@45.32.84.140:3306/anonymous')
 
 
+    ## 获取匿名名片信息
+    def gainany(self,id:str):
+        self.any_id = id
+        self.usercheck = pd.read_sql_query(f'SELECT * FROM user WHERE id = \'{str(self.any_id)}\'',self.engine).values.tolist()
+        self.any_list = []
+        for i in self.usercheck:
+            self.any_list.append(i[3])
+            self.any_list.append(i[4])
+            self.any_list.append(i[5])
+            self.any_list.append(i[6])
+        return self.any_list
+
     ## 用户登录
     def userlogin(self,id:str,password:str):
         self.id=id
@@ -107,10 +119,10 @@ class Mysql():
         self.sendmes = messages
 
 if __name__ == '__main__':
-    test = Mysql()
+    #test = Mysql()
     #test.readmessage(str(21103307))
     #test.readuserlist()
-    test.useregister('wrewr','4DA6EDB16DAD7148938AC3463EDACD62')
+    #test.useregister('wrewr','4DA6EDB16DAD7148938AC3463EDACD62')
     #test.sendmessage('Hello World!')
     #print(test.readmessage()[0][2])
     #for i in test.readmessage():
@@ -118,4 +130,5 @@ if __name__ == '__main__':
     #print(list)
     #print(type(test.readmessage()))
     #print(str(test.readmessage()))
-    #test.readmessage()S
+    #test.readmessage()
+    pass
