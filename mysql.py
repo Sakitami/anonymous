@@ -2,6 +2,7 @@ import pandas as pd
 from sqlalchemy import create_engine
 import os
 import pickle
+import datetime
 
 class Mysql():
     def __init__(self):
@@ -105,11 +106,7 @@ class Mysql():
         ## 接收用户id
         self.userid = id
         print(self.userid)
-        try:
-            self.readcommand = f"SELECT * FROM letter WHERE receiver = '{self.userid}'"
-        except:
-            print("没有信件")
-            return 0 ## 没有信件则返回0
+        self.readcommand = f"SELECT * FROM letter WHERE receiver = '{self.userid}'"
         print(self.readcommand)
         ## 执行SQL查询语句,并返回csv文件
         try:
@@ -117,25 +114,54 @@ class Mysql():
         except:
             pass
         #try:
-        self.letterfile = open(self.catalog+'\\data\\letters.csv','w')
-        self.letterfile.close()
-        self.readletter = pd.read_sql_query(self.readcommand,self.engine).to_csv(self.catalog+'\\data\\letters.csv',sep=',',index=False,header=['id','sender','receiver','date_send','data_received','del_time','text'])
-        self.letterfile = pd.read_csv(self.catalog+'\\data\\letters.csv')
-        self.letterfile.drop(['id'],axis=1)
-        self.letterfile.to_csv(self.catalog+'\\data\\letters.csv')
-        #except:
-        #    print("网络连接失败！")
-        #    return 0
-        ## 将信件保存到本地
-        return 1
+        #self.letterfile = open(self.catalog+'\\data\\letters.csv','w')
+        #self.letterfile.close()
+        try:
+            self.readletter = pd.read_sql_query(self.readcommand,self.engine)
+            self.readletter = self.readletter[['sender','status','date_send','del_time','text']]
+        except:
+            print("网络错误")
+            return 0 ## 网络错误则返回0
+        self.readletter.to_csv(self.catalog+'\\data\\letters.csv')
+        print(self.readletter.values.tolist())
+        if self.readletter.values.tolist() == []:
+            print("没有信件")
+            return 2 ## 没有信件则返回2
+        ## 将信件保存到本地, 将信件信息列表返回给主文件
+        return self.readletter.values.tolist()
 
     ## 发送信件
-    def sendmessage(self,messages:str):
-        self.sendmes = messages
+    def sendmessage(self,user:str,nick:str,receiver:str,message:str):
+        self.senduser = user
+        self.sendnick = nick
+        self.sendreceive = receiver
+        self.sendmsg = message
+        try:
+            self.usercheck = pd.read_sql_query(f'SELECT * FROM user WHERE id = \'{self.sendreceive}\'',self.engine).values.tolist()
+        except:
+            print("无网络连接")
+            return 0
+        try:
+            self.usercheck[0][1]
+        except:
+            print('无该用户')
+            return 2
+        #try:
+        dt = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        print(self.senduser+'|'+self.sendnick+'|'+self.sendreceive+'|'+self.sendmsg)
+        self.doregister = pd.read_sql_query(f"INSERT INTO `letter` (`id`, `sender`, `receiver`, `status`, `date_send`, `del_time`, `text`) VALUES ('{str(self.senduser)}', '{str(self.sendnick)}', '{str(self.sendreceive)}', '', '{dt}', '', {self.sendmsg});",self.engine)
+        #    print("发送成功")
+        #    return 1 ## 返回发送成功结果
+        #except:
+        #    print("发送成功")
+        #    return 1
+        #    return 0 ## 返回错误类型        
+        #pass
 
 if __name__ == '__main__':
     #test = Mysql()
     #test.readmessage(str('Sakitami'))
+    #test.sendmessage('hanyi2','BlackCat','Sakitami','woshidashabi')
     #test.readuserlist()
     #test.useregister('wrewr','4DA6EDB16DAD7148938AC3463EDACD62')
     #test.sendmessage('Hello World!')

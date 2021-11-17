@@ -1,6 +1,6 @@
 import sys
 from PyQt5.QtWidgets import QApplication, QMainWindow
-from PyQt5 import QtCore
+from PyQt5 import QtCore, QtGui
 from PyQt5.QtCore import QThread,pyqtBoundSignal
 from window import Ui_MainWindow
 from mysql import Mysql
@@ -26,6 +26,8 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
         self.pushButton.clicked.connect(self.EditAny)
         ## 点击手动刷新按钮 -- 获取信件
         self.pushButton_2.clicked.connect(self.ReadMessage)
+        ## 点击发送按钮-- 发送信件
+        self.pushButton_3.clicked.connect(self.PushMessage)
 
 
     ## 启动修改匿名线程
@@ -65,15 +67,72 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
     def ReadMessage(self):
         self.pushButton_2.setDisabled(True)
         self.pushButton_2.setText("刷新中")
+        self.ReadMessage_QThread = ReadMessageThread()
+        self.ReadMessage_QThread.start()
+        #self.ReadMessage_QThread.stop()
         pass
 
+    ## 启动发送信件线程
+    def PushMessage(self):
+        self.lineEdit_6.setDisabled(True)
+        self.comboBox_2.setDisabled(True)
+        self.textEdit_2.setDisabled(True)
+        self.pushButton_3.setDisabled(True)
+        self.PushMessage_QThread = PushMessageThread()
+        self.PushMessage_QThread.start()
+        self.PushMessage_QThread.wait()
+        pass
+
+## 发送信件线程逻辑实现
+class PushMessageThread(QThread):
+    trigger = pyqtBoundSignal(str)
+    def __init__(self):
+        super(PushMessageThread,self).__init__()
+    def run(self):
+        strtest = (repr(myWin.textEdit_2.toPlainText()))
+        print(myWin.lineEdit_6.text())
+        if myWin.textEdit_2.toPlainText() == '' or myWin.lineEdit_6.text() == '':
+            print('信件不能为空')
+        else:
+            push_check =  controller.sendmessage(str(myWin.lineEdit_5.text()),myWin.comboBox_2.currentText(),myWin.lineEdit_6.text(),strtest)
+            myWin.pushButton_3.setEnabled(True)
+            myWin.lineEdit_6.setEnabled(True)
+            myWin.comboBox_2.setEnabled(True)
+            myWin.textEdit_2.setEnabled(True)
+            if push_check == 1:
+                myWin.pushButton_3.setText("发送成功")
+
+            else:
+                myWin.pushButton_3.setText("发送失败")
+        print(strtest)
+        pass ## TODO 发送信件功能
 
 ## 获取信件线程逻辑实现
-class ReadMessageThread(QThread):
+class ReadMessageThread(QThread):  ## FIXME 线程冲突问题
     trigger = pyqtBoundSignal(str)
     def __init__(self):
         super(ReadMessageThread,self).__init__()
+        self.readmsguserid = str(myWin.lineEdit_5.text())
+        self.module = QtGui.QStandardItemModel()
+        self.module.setHorizontalHeaderLabels(['发件人','是否已读','发件时间','清除时间'])
     def run(self):
+        self.readmsglist = controller.readmessage(self.readmsguserid)
+        if self.readmsglist == 0:
+            pass
+        elif self.readmsglist == 2:
+            pass
+        else:
+            print(len(self.readmsglist[0]))
+            for i in range(0,len(self.readmsglist)):
+                for j in range(0,len(self.readmsglist[i])-1):
+                    self.module.setItem(i,j,QtGui.QStandardItem(str(self.readmsglist[i][j])))
+        #for i in range(0,len(self.readmsguserid)):
+        #    for j in range(0,4):
+        #        self.module.setItem(i,j,QtGui.QStandardItem(str(self.readmsglist[i][j])))
+            myWin.tableView_3.setModel(self.module)
+            myWin.pushButton_2.setEnabled(True)
+            myWin.pushButton_2.setText("手动刷新")
+
         pass ## TODO 获取信件线程逻辑实现
 
 ## 匿名名片显示线程逻辑实现
@@ -87,7 +146,9 @@ class AnonymousShowThread(QThread):
         myWin.label_7.setText(self.anylist.pop())
         print(self.anylist)
         myWin.listWidget_2.addItems(self.anylist)
-        pass ## TODO 展示匿名名片
+        myWin.comboBox_2.clear()
+        myWin.comboBox_2.addItems(self.anylist)
+        pass
 
 ## 修改匿名线程逻辑实现
 class EditanyThread(QThread):
@@ -108,6 +169,7 @@ class SyncThread(QThread):
         while True:
             time.sleep(60)
             myWin.Userlist()
+            #myWin.ReadMessage()
             #controller.readmessage(id=self.sync_user)
             print('被执行')
 
@@ -183,10 +245,11 @@ class LoginThread(QThread):
             myWin.pushButton.setEnabled(True)
             myWin.tableView_3.setEnabled(True)
             myWin.pushButton_2.setEnabled(True)
-            myWin.pushButton_5.setEnabled(True)
-            myWin.pushButton_6.setEnabled(True)
-            myWin.pushButton_7.setEnabled(True)
-            myWin.pushButton_8.setEnabled(True)
+            myWin.lineEdit_6.setEnabled(True)
+            myWin.comboBox_2.setEnabled(True)
+            myWin.pushButton_3.setEnabled(True)
+            myWin.textEdit_2.setEnabled(True)
+            myWin.lineEdit.setEnabled(True)
             ceshishow = AnonymousShowThread()
             ceshishow.start()
             self.Sync_QThread = SyncThread()

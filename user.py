@@ -8,13 +8,19 @@ class Users():
         self.catalog = os.getcwd()
         self.command = []
 
-    ## ´¦ÀíÓÃ»§ÁÐ±í£¬·µ»Ø¸øÖ÷ÎÄ¼þ
+    ## ï¿½ï¿½ï¿½ï¿½ï¿½Ã»ï¿½ï¿½Ð±ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½Ø¸ï¿½ï¿½ï¿½ï¿½Ä¼ï¿½
     def userlist(self):
         self.__f = open(self.catalog+"\\bin\\user.pkl","rb")
-        self.a = pickle.load(self.__f)
+        self.__a = pickle.load(self.__f)
         self.__f.close()
-        print(self.a)
-        return self.a
+        print(self.__a)
+        return self.__a
+
+#    def sendmsg(self):
+#        self.__fl = open(self.catalog+"\\bin\\message.pkl","rb")
+#        self.__b = pickle.load(self.__fl)
+#        self.__fl.close()
+#        return self.__b
 
 if __name__ == '__main__':
     users = Users()
