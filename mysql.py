@@ -13,6 +13,15 @@ class Mysql():
         self.engine = create_engine('mysql+pymysql://client:02e0be72e034672d2ba5c5b029b7ff2d12345678@45.32.84.140:3306/anonymous')
 
 
+    ## 设置离线
+    def offline(self,id:str):
+        self.off_id = id
+        try:
+            self.off_do = pd.read_sql_query(f'UPDATE user SET status = 0 WHERE id = \'{self.id}\'',self.engine)
+        except:
+            pass
+        return 0
+
     ## 获取匿名名片信息
     def gainany(self,id:str):
         self.any_id = id
@@ -62,6 +71,7 @@ class Mysql():
             #return 0
         except:
             print("网络错误")
+            return 0
         if self.checkid != []:
             print("已被占用的id")
             return 2
@@ -89,25 +99,30 @@ class Mysql():
             with open(self.catalog+'\\bin\\user.pkl','wb') as f:
                 pickle.dump(self.readuser,f)
         return 1
+
     ## 读取信件
     def readmessage(self,id:str):
         ## 接收用户id
         self.userid = id
         print(self.userid)
-        self.readcommand = f"SELECT * FROM letter WHERE receiver = {self.userid}"
+        try:
+            self.readcommand = f"SELECT * FROM letter WHERE receiver = '{self.userid}'"
+        except:
+            print("没有信件")
+            return 0 ## 没有信件则返回0
         print(self.readcommand)
         ## 执行SQL查询语句,并返回csv文件
         try:
-            os.remove('anonymous\\data\\letters.csv')
+            os.remove(self.catalog+'\\data\\letters.csv')
         except:
             pass
         #try:
-        self.letterfile = open('anonymous\\data\\letters.csv','w')
+        self.letterfile = open(self.catalog+'\\data\\letters.csv','w')
         self.letterfile.close()
-        self.readletter = pd.read_sql_query(self.readcommand,self.engine).to_csv('userinterface\\data\\letters.csv',sep=',',index=False,header=['id','sender','receiver','date_send','data_received','del_time','text'])
-        self.letterfile = pd.read_csv('anonymous\\data\\letters.csv')
+        self.readletter = pd.read_sql_query(self.readcommand,self.engine).to_csv(self.catalog+'\\data\\letters.csv',sep=',',index=False,header=['id','sender','receiver','date_send','data_received','del_time','text'])
+        self.letterfile = pd.read_csv(self.catalog+'\\data\\letters.csv')
         self.letterfile.drop(['id'],axis=1)
-        self.letterfile.to_csv('anonymous\\data\\letters.csv')
+        self.letterfile.to_csv(self.catalog+'\\data\\letters.csv')
         #except:
         #    print("网络连接失败！")
         #    return 0
@@ -120,7 +135,7 @@ class Mysql():
 
 if __name__ == '__main__':
     #test = Mysql()
-    #test.readmessage(str(21103307))
+    #test.readmessage(str('Sakitami'))
     #test.readuserlist()
     #test.useregister('wrewr','4DA6EDB16DAD7148938AC3463EDACD62')
     #test.sendmessage('Hello World!')

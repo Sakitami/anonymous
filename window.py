@@ -1,7 +1,4 @@
 # -*- coding: utf-8 -*-
-
-# Form implementation generated from reading ui file 'C:\Users\sakitami\工作\学习\匿名信\userinterface\main.ui'
-#
 # Created by: PyQt5 UI code generator 5.15.6
 #
 # WARNING: Any manual changes made to this file will be lost when pyuic5 is
@@ -186,6 +183,10 @@ class Ui_MainWindow(object):
         self.tableView_3 = QtWidgets.QTableView(self.tab_3)
         self.tableView_3.setGeometry(QtCore.QRect(10, 10, 541, 261))
         self.tableView_3.setObjectName("tableView_3")
+        self.letterlist=QtGui.QStandardItemModel(10,4)
+        self.letterlist.setHorizontalHeaderLabels(['发件人','是否已读','发件时间','清除时间'])
+        self.tableView_3.setModel(self.letterlist)
+        self.tableView_3.setDisabled(True)
         self.horizontalLayoutWidget_9 = QtWidgets.QWidget(self.tab_3)
         self.horizontalLayoutWidget_9.setGeometry(QtCore.QRect(10, 270, 320, 41))
         self.horizontalLayoutWidget_9.setObjectName("horizontalLayoutWidget_9")
@@ -298,6 +299,7 @@ class Ui_MainWindow(object):
         self.label_7.setText(_translate("MainWindow", "未登录"))
         self.groupBox_2.setTitle(_translate("MainWindow", "匿名名片"))
         self.pushButton.setText(_translate("MainWindow", "添加/删除"))
+        self.pushButton.setDisabled(True)
         self.groupBox_3.setTitle(_translate("MainWindow", "登录"))
         self.label_10.setText(_translate("MainWindow", "用户ID:"))
         self.label_9.setText(_translate("MainWindow", "密码:  "))
@@ -315,6 +317,11 @@ class Ui_MainWindow(object):
         self.pushButton_7.setText(_translate("MainWindow", "双向删除"))
         self.pushButton_8.setText(_translate("MainWindow", "查看信件"))
         self.pushButton_2.setText(_translate("MainWindow", "手动刷新"))
+        self.pushButton_2.setDisabled(True)
+        self.pushButton_5.setDisabled(True)
+        self.pushButton_6.setDisabled(True)
+        self.pushButton_7.setDisabled(True)
+        self.pushButton_8.setDisabled(True)
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_3), _translate("MainWindow", "我的信件"))
         self.label_12.setText(_translate("MainWindow", "To:"))
         self.label_13.setText(_translate("MainWindow", "By:"))

@@ -1,5 +1,4 @@
 import sys
-from PyQt5.QtGui import QStandardItemModel
 from PyQt5.QtWidgets import QApplication, QMainWindow
 from PyQt5 import QtCore
 from PyQt5.QtCore import QThread,pyqtBoundSignal
@@ -13,9 +12,9 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
     def __init__(self, parent=None):
         super(MyMainForm, self).__init__(parent)
         self.setupUi(self)
-        self.letterlist=QStandardItemModel(10,4)
-        self.letterlist.setHorizontalHeaderLabels(['发件人','是否已读','发件时间','清除时间'])
-        self.tableView_3.setModel(self.letterlist)
+        #self.letterlist=QStandardItemModel(10,4)
+        #self.letterlist.setHorizontalHeaderLabels(['发件人','是否已读','发件时间','清除时间'])
+        #self.tableView_3.setModel(self.letterlist)
 
 
         # 该部分为前后端连接
@@ -25,6 +24,9 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
         self.pushButton_10.clicked.connect(self.Register)
         ## 点击添加/删除按钮
         self.pushButton.clicked.connect(self.EditAny)
+        ## 点击手动刷新按钮 -- 获取信件
+        self.pushButton_2.clicked.connect(self.ReadMessage)
+
 
     ## 启动修改匿名线程
     def EditAny(self):
@@ -59,6 +61,20 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
         self.Register_QThread = RegisterThread()
         self.Register_QThread.start()
 
+    ## 启动获取信件线程
+    def ReadMessage(self):
+        self.pushButton_2.setDisabled(True)
+        self.pushButton_2.setText("刷新中")
+        pass
+
+
+## 获取信件线程逻辑实现
+class ReadMessageThread(QThread):
+    trigger = pyqtBoundSignal(str)
+    def __init__(self):
+        super(ReadMessageThread,self).__init__()
+    def run(self):
+        pass ## TODO 获取信件线程逻辑实现
 
 ## 匿名名片显示线程逻辑实现
 class AnonymousShowThread(QThread):
@@ -87,12 +103,13 @@ class SyncThread(QThread):
     trigger = pyqtBoundSignal(str)
     def __init__(self):
         super(SyncThread,self).__init__()
+        self.sync_user = (str(myWin.lineEdit_5.text()))
     def run(self):
         while True:
-            #time.sleep(60)
-            myWin.Userlist()
-            print('被执行')
             time.sleep(60)
+            myWin.Userlist()
+            #controller.readmessage(id=self.sync_user)
+            print('被执行')
 
 ## 注册线程逻辑实现
 class RegisterThread(QThread):
@@ -135,6 +152,12 @@ class RegisterThread(QThread):
                 myWin.lineEdit_4.setEnabled(True)
                 myWin.lineEdit_7.setEnabled(True)
                 myWin.lineEdit_8.setEnabled(True)
+            elif checkresult == 0:
+                myWin.pushButton_10.setEnabled(True)
+                myWin.pushButton_10.setText("网络错误")
+                myWin.lineEdit_4.setEnabled(True)
+                myWin.lineEdit_7.setEnabled(True)
+                myWin.lineEdit_8.setEnabled(True)
                 #return 0
         pass
 
@@ -157,6 +180,13 @@ class LoginThread(QThread):
             myWin.label_3.setText(userid)
             myWin.label_5.setText("在线")
             myWin.Userlist()
+            myWin.pushButton.setEnabled(True)
+            myWin.tableView_3.setEnabled(True)
+            myWin.pushButton_2.setEnabled(True)
+            myWin.pushButton_5.setEnabled(True)
+            myWin.pushButton_6.setEnabled(True)
+            myWin.pushButton_7.setEnabled(True)
+            myWin.pushButton_8.setEnabled(True)
             ceshishow = AnonymousShowThread()
             ceshishow.start()
             self.Sync_QThread = SyncThread()
@@ -204,4 +234,6 @@ if __name__ == "__main__":
     myWin.setWindowTitle('匿名信')
     myWin.show()          ## 将窗口显示在屏幕
 
-    sys.exit(app.exec_()) ## 确保完整退出
+    #sys.exit(app.exec_()) ## 确保完整退出
+    app.exec_()
+    controller.offline(str(myWin.lineEdit_3.text()))
