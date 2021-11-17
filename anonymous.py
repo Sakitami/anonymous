@@ -36,6 +36,10 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
         self.lineEdit.setDisabled(True)
         self.EditAny_QThread = EditanyThread()
         self.EditAny_QThread.start()
+        self.EditAny_QThread.quit()
+        self.ceshi = AnonymousShowThread()
+        print("dfdf")
+        self.ceshi.start()
 
     ## 启动登录线程
     def Login(self):
@@ -83,6 +87,11 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
         self.PushMessage_QThread.wait()
         pass
 
+    ## 启动刷新匿名名片显示线程
+    def Refreshcard(self):
+        self.AnonymousShow_QThread = AnonymousShowThread()
+        self.AnonymousShow_QThread.start()
+
 ## 发送信件线程逻辑实现
 class PushMessageThread(QThread):
     trigger = pyqtBoundSignal(str)
@@ -118,20 +127,21 @@ class ReadMessageThread(QThread):  ## FIXME 线程冲突问题
     def run(self):
         self.readmsglist = controller.readmessage(self.readmsguserid)
         if self.readmsglist == 0:
-            pass
+            myWin.pushButton_2.setText("网络错误")
         elif self.readmsglist == 2:
-            pass
+            myWin.pushButton_2.setText("手动刷新")
         else:
             print(len(self.readmsglist[0]))
             for i in range(0,len(self.readmsglist)):
                 for j in range(0,len(self.readmsglist[i])-1):
                     self.module.setItem(i,j,QtGui.QStandardItem(str(self.readmsglist[i][j])))
+            myWin.pushButton_2.setText("手动刷新")
         #for i in range(0,len(self.readmsguserid)):
         #    for j in range(0,4):
         #        self.module.setItem(i,j,QtGui.QStandardItem(str(self.readmsglist[i][j])))
-            myWin.tableView_3.setModel(self.module)
-            myWin.pushButton_2.setEnabled(True)
-            myWin.pushButton_2.setText("手动刷新")
+        myWin.tableView_3.setModel(self.module)
+        myWin.pushButton_2.setEnabled(True)
+        
 
         pass ## TODO 获取信件线程逻辑实现
 
@@ -142,20 +152,33 @@ class AnonymousShowThread(QThread):
         self.showanyuserid = (str(myWin.lineEdit_5.text()))
         super(AnonymousShowThread,self).__init__()
     def run(self):
+        time.sleep(5)
+        print("开始工作!")
         self.anylist = controller.gainany(self.showanyuserid)
         myWin.label_7.setText(self.anylist.pop())
         print(self.anylist)
         myWin.listWidget_2.addItems(self.anylist)
-        myWin.comboBox_2.clear()
-        myWin.comboBox_2.addItems(self.anylist)
+        myWin.listWidget_2.clear()
+        myWin.listWidget_2.addItems(self.anylist)
         pass
 
 ## 修改匿名线程逻辑实现
 class EditanyThread(QThread):
-    trigger = pyqtBoundSignal(str)
+    trigger = pyqtBoundSignal(int)
+    #trigger.connect()
     def __init__(self):
         super(EditanyThread,self).__init__()
     def run(self):
+        self.check_result_edit = controller.editany(str(myWin.lineEdit_5.text()),str(myWin.lineEdit.text()))
+        if self.check_result_edit == 1:
+            myWin.pushButton.setText("删除完成")
+        elif self.check_result_edit == 2:
+            myWin.pushButton.setText("添加完成")
+        else:
+            myWin.pushButton.setText("操作失败")
+        #self.trigger.emit(1)
+        myWin.lineEdit.setEnabled(True)
+        myWin.pushButton.setEnabled(True)
         pass ## TODO 修改匿名功能
 
 ## 同步线程
@@ -252,6 +275,7 @@ class LoginThread(QThread):
             myWin.lineEdit.setEnabled(True)
             ceshishow = AnonymousShowThread()
             ceshishow.start()
+            ceshishow.quit()
             self.Sync_QThread = SyncThread()
             self.Sync_QThread.start()
         elif login_result == 0:  ## 网络错误

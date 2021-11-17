@@ -1,1 +1,2 @@
-                myWin.pushButton_3.setText("发送失败")
+self.EditAny_QThread = EditanyThread()
+        self.EditAny_QThread.start()

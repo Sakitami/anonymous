@@ -14,6 +14,36 @@ class Mysql():
         self.engine = create_engine('mysql+pymysql://client:02e0be72e034672d2ba5c5b029b7ff2d12345678@45.32.84.140:3306/anonymous')
 
 
+    ## 添加/删除匿名名片
+    def editany(self,userid:str,card:str):
+        self.anycard = card
+        self.anyid = userid
+        self.anycardlist = []
+        try:
+            ## 将用户的匿名信息添加到列表中进行处理
+            for i in range(1,4):
+                self.editanycheck = pd.read_sql_query(f"SELECT nick{i} FROM user WHERE id = '{self.anyid}'",self.engine).values.tolist()
+                self.anycardlist.append(self.editanycheck[0][0])
+                print(self.anycardlist)
+                #self.anycardlist.append(str(self.editanycheck))
+        except:
+            print("网络错误")
+            return 0 ## 网络错误的返回
+        for i in range(0,3):
+            print(self.anycardlist[i])
+            if self.anycardlist[i] == '':
+                try:
+                    self.addcard = pd.read_sql_query(f"UPDATE user SET nick{i+1} = '{self.anycard}' WHERE id = '{self.anyid}';",self.engine)
+                except:
+                    print("添加完成")
+                    return 2
+            if self.anycardlist[i] == self.anycard:
+                try:
+                    self.removecard = pd.read_sql_query(f"UPDATE user SET nick{i+1} = null WHERE id = '{self.anyid}';",self.engine)
+                except:
+                    print("删除完成")
+                    return 1
+
     ## 设置离线
     def offline(self,id:str):
         self.off_id = id
@@ -81,6 +111,7 @@ class Mysql():
         except:
             print("注册成功")
             return 1
+
     ## 读取用户列表
     def readuserlist(self):
         ## 执行SQL查询语句,并返回列表
@@ -146,20 +177,21 @@ class Mysql():
         except:
             print('无该用户')
             return 2
-        #try:
-        dt = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        print(self.senduser+'|'+self.sendnick+'|'+self.sendreceive+'|'+self.sendmsg)
-        self.doregister = pd.read_sql_query(f"INSERT INTO `letter` (`id`, `sender`, `receiver`, `status`, `date_send`, `del_time`, `text`) VALUES ('{str(self.senduser)}', '{str(self.sendnick)}', '{str(self.sendreceive)}', '', '{dt}', '', {self.sendmsg});",self.engine)
-        #    print("发送成功")
-        #    return 1 ## 返回发送成功结果
-        #except:
-        #    print("发送成功")
-        #    return 1
-        #    return 0 ## 返回错误类型        
+        try:
+            dt = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            print(self.senduser+'|'+self.sendnick+'|'+self.sendreceive+'|'+self.sendmsg)
+            self.doregister = pd.read_sql_query(f"INSERT INTO `letter` (`id`, `sender`, `receiver`, `status`, `date_send`, `del_time`, `text`) VALUES ('{str(self.senduser)}', '{str(self.sendnick)}', '{str(self.sendreceive)}', '', '{dt}', '', {self.sendmsg});",self.engine)
+            print("发送成功")
+            return 1 ## 返回发送成功结果
+        except:
+            print("发送成功")
+            return 1
+            #return 0 ## 返回错误类型        
         #pass
 
 if __name__ == '__main__':
-    #test = Mysql()
+    test = Mysql()
+    test.editany('saki','qwer')
     #test.readmessage(str('Sakitami'))
     #test.sendmessage('hanyi2','BlackCat','Sakitami','woshidashabi')
     #test.readuserlist()
