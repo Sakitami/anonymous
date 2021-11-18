@@ -1,3 +1,4 @@
+import markdown
 import pandas as pd
 from sqlalchemy import create_engine
 import os
@@ -14,10 +15,11 @@ class Mysql():
         self.engine = create_engine('mysql+pymysql://client:02e0be72e034672d2ba5c5b029b7ff2d12345678@45.32.84.140:3306/anonymous')
 
 
+    ## 
     ## 添加/删除匿名名片
     def editany(self,userid:str,card:str):
         self.anycard = card
-        self.anyid = userid
+        self.anyid = userid.lower()
         self.anycardlist = []
         try:
             ## 将用户的匿名信息添加到列表中进行处理
@@ -43,10 +45,11 @@ class Mysql():
                 except:
                     print("删除完成")
                     return 1
+        return 3 ## 名片已满
 
     ## 设置离线
     def offline(self,id:str):
-        self.off_id = id
+        self.off_id = id.lower()
         try:
             self.off_do = pd.read_sql_query(f'UPDATE user SET status = 0 WHERE id = \'{self.id}\'',self.engine)
         except:
@@ -55,7 +58,7 @@ class Mysql():
 
     ## 获取匿名名片信息
     def gainany(self,id:str):
-        self.any_id = id
+        self.any_id = id.lower()
         self.usercheck = pd.read_sql_query(f'SELECT * FROM user WHERE id = \'{str(self.any_id)}\'',self.engine).values.tolist()
         self.any_list = []
         for i in self.usercheck:
@@ -67,7 +70,7 @@ class Mysql():
 
     ## 用户登录
     def userlogin(self,id:str,password:str):
-        self.id=id
+        self.id=id.lower()
         self.password=password
         self.logincommand = f'UPDATE user SET status = 1 WHERE id = \'{self.id}\''
         try:
@@ -94,10 +97,10 @@ class Mysql():
 
     ## 用户注册
     def useregister(self,id:str,password:str):
-        self.id=id
+        self.id=id.lower()
         self.password=password
         try:
-            self.checkid = pd.read_sql_query(f"SELECT * from user WHERE id = '{str(self.id)}'",self.engine).values.tolist()
+            self.checkid = pd.read_sql_query(f"SELECT * from user WHERE id = '{str(self.id).lower()}'",self.engine).values.tolist()
             print(self.checkid)
             #return 0
         except:
@@ -135,7 +138,7 @@ class Mysql():
     ## 读取信件
     def readmessage(self,id:str):
         ## 接收用户id
-        self.userid = id
+        self.userid = id.lower()
         print(self.userid)
         self.readcommand = f"SELECT * FROM letter WHERE receiver = '{self.userid}'"
         print(self.readcommand)
@@ -163,10 +166,12 @@ class Mysql():
 
     ## 发送信件
     def sendmessage(self,user:str,nick:str,receiver:str,message:str):
-        self.senduser = user
+        self.senduser = user.lower()
         self.sendnick = nick
-        self.sendreceive = receiver
+        self.sendreceive = receiver.lower()
         self.sendmsg = message
+        if self.senduser.lower() == self.sendreceive.lower():
+            return 3 ## 用户不能给自己发消息
         try:
             self.usercheck = pd.read_sql_query(f'SELECT * FROM user WHERE id = \'{self.sendreceive}\'',self.engine).values.tolist()
         except:
@@ -179,20 +184,22 @@ class Mysql():
             return 2
         try:
             dt = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            print(self.sendmsg)
+            self.sendmsg = markdown.markdown(self.sendmsg,extensions=['markdown.extensions.toc','markdown.extensions.fenced_code'])
             print(self.senduser+'|'+self.sendnick+'|'+self.sendreceive+'|'+self.sendmsg)
-            self.doregister = pd.read_sql_query(f"INSERT INTO `letter` (`id`, `sender`, `receiver`, `status`, `date_send`, `del_time`, `text`) VALUES ('{str(self.senduser)}', '{str(self.sendnick)}', '{str(self.sendreceive)}', '', '{dt}', '', {self.sendmsg});",self.engine)
+            self.doregister = pd.read_sql_query(f"INSERT INTO `letter` (`id`, `sender`, `receiver`, `status`, `date_send`, `del_time`, `text`) VALUES ('{str(self.senduser)}', '{str(self.sendnick)}', '{str(self.sendreceive)}', '', '{dt}', '', '{self.sendmsg}');",self.engine)
             print("发送成功")
             return 1 ## 返回发送成功结果
         except:
             print("发送成功")
             return 1
-            #return 0 ## 返回错误类型        
+        #    return 0 ## 返回错误类型        
         #pass
 
 if __name__ == '__main__':
-    test = Mysql()
-    test.editany('saki','qwer')
-    #test.readmessage(str('Sakitami'))
+    #test = Mysql()
+    #test.editany('saki','qwer')
+    #test.readmessage(str('Saki'))
     #test.sendmessage('hanyi2','BlackCat','Sakitami','woshidashabi')
     #test.readuserlist()
     #test.useregister('wrewr','4DA6EDB16DAD7148938AC3463EDACD62')

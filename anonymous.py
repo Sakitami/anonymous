@@ -12,9 +12,6 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
     def __init__(self, parent=None):
         super(MyMainForm, self).__init__(parent)
         self.setupUi(self)
-        #self.letterlist=QStandardItemModel(10,4)
-        #self.letterlist.setHorizontalHeaderLabels(['发件人','是否已读','发件时间','清除时间'])
-        #self.tableView_3.setModel(self.letterlist)
 
 
         # 该部分为前后端连接
@@ -28,8 +25,22 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
         self.pushButton_2.clicked.connect(self.ReadMessage)
         ## 点击发送按钮-- 发送信件
         self.pushButton_3.clicked.connect(self.PushMessage)
+        ## 点击信件中某项
+        self.tableView_3.clicked.connect(self.EnableViewMsg)
+        ## 点击查看信件按钮
+        self.pushButton_8.clicked.connect(self.ViewMsg)
 
 
+    ## 启动查看信件线程
+    def ViewMsg(self):
+        self.ViewMsg_QThread = ViewMsgMK()
+        self.ViewMsg_QThread.start()
+
+    ## 激活阅读信件按钮
+    def EnableViewMsg(self):
+        self.pushButton_8.setEnabled(True)
+        print('OK!')
+    
     ## 启动修改匿名线程
     def EditAny(self):
         self.pushButton.setDisabled(True)
@@ -37,9 +48,9 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
         self.EditAny_QThread = EditanyThread()
         self.EditAny_QThread.start()
         self.EditAny_QThread.quit()
-        self.ceshi = AnonymousShowThread()
+        self.EditShow_QThread = AnonymousShowThread()
         print("dfdf")
-        self.ceshi.start()
+        self.EditShow_QThread.start()
 
     ## 启动登录线程
     def Login(self):
@@ -84,7 +95,7 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
         self.pushButton_3.setDisabled(True)
         self.PushMessage_QThread = PushMessageThread()
         self.PushMessage_QThread.start()
-        self.PushMessage_QThread.wait()
+        #self.PushMessage_QThread.wait()
         pass
 
     ## 启动刷新匿名名片显示线程
@@ -92,29 +103,43 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
         self.AnonymousShow_QThread = AnonymousShowThread()
         self.AnonymousShow_QThread.start()
 
+## 查看信件线程逻辑实现
+class ViewMsgMK(QThread):
+    trigger = pyqtBoundSignal(str)
+    def __init__(self):
+        super(ViewMsgMK,self).__init__()
+    def run(self):
+        print(myWin.tableView_3.currentIndex().row())
+        user_controller.readletter(myWin.tableView_3.currentIndex().row()+1)
+        pass ## TODO 查看信件
+
 ## 发送信件线程逻辑实现
 class PushMessageThread(QThread):
     trigger = pyqtBoundSignal(str)
     def __init__(self):
         super(PushMessageThread,self).__init__()
     def run(self):
-        strtest = (repr(myWin.textEdit_2.toPlainText()))
+        strtest = myWin.textEdit_2.toPlainText()## (repr(myWin.textEdit_2.toPlainText()))
         print(myWin.lineEdit_6.text())
         if myWin.textEdit_2.toPlainText() == '' or myWin.lineEdit_6.text() == '':
-            print('信件不能为空')
+            myWin.pushButton_3.setText("有空项")
+            print('信件为空')
+        elif myWin.comboBox_2.currentText() == '':
+            myWin.pushButton_3.setText("无匿名值")
         else:
             push_check =  controller.sendmessage(str(myWin.lineEdit_5.text()),myWin.comboBox_2.currentText(),myWin.lineEdit_6.text(),strtest)
-            myWin.pushButton_3.setEnabled(True)
-            myWin.lineEdit_6.setEnabled(True)
-            myWin.comboBox_2.setEnabled(True)
-            myWin.textEdit_2.setEnabled(True)
             if push_check == 1:
                 myWin.pushButton_3.setText("发送成功")
-
+            elif push_check == 2:
+                myWin.pushButton_3.setText("无该用户")
+            elif push_check == 3:
+                myWin.pushButton_3.setText("不能自发")
             else:
                 myWin.pushButton_3.setText("发送失败")
-        print(strtest)
-        pass ## TODO 发送信件功能
+        myWin.pushButton_3.setEnabled(True)
+        myWin.lineEdit_6.setEnabled(True)
+        myWin.comboBox_2.setEnabled(True)
+        myWin.textEdit_2.setEnabled(True)
 
 ## 获取信件线程逻辑实现
 class ReadMessageThread(QThread):  ## FIXME 线程冲突问题
@@ -168,15 +193,24 @@ class EditanyThread(QThread):
     #trigger.connect()
     def __init__(self):
         super(EditanyThread,self).__init__()
+        self.editdanylist = []
     def run(self):
         self.check_result_edit = controller.editany(str(myWin.lineEdit_5.text()),str(myWin.lineEdit.text()))
         if self.check_result_edit == 1:
             myWin.pushButton.setText("删除完成")
         elif self.check_result_edit == 2:
             myWin.pushButton.setText("添加完成")
+        elif self.check_result_edit == 3:
+            myWin.pushButton.setText("名片已满")
         else:
-            myWin.pushButton.setText("操作失败")
+            myWin.pushButton.setText("修改失败")
         #self.trigger.emit(1)
+        myWin.comboBox_2.clear()
+        self.editanylist = controller.gainany(str(myWin.lineEdit_5.text()))
+        for i in range(0,3):
+            if self.editanylist[i] != '':
+                self.editdanylist.append(self.editanylist[i])
+        myWin.comboBox_2.addItems(self.editdanylist)
         myWin.lineEdit.setEnabled(True)
         myWin.pushButton.setEnabled(True)
         pass ## TODO 修改匿名功能
@@ -207,43 +241,28 @@ class RegisterThread(QThread):
     def run(self):
         ## 判断用户两次输入密码是否相等
         if  self.username == '' or str(myWin.lineEdit_4) == '' or str(myWin.lineEdit_8) =='':
-            myWin.pushButton_10.setEnabled(True)
+            
             myWin.pushButton_10.setText("非法输入")
-            myWin.lineEdit_4.setEnabled(True)
-            myWin.lineEdit_7.setEnabled(True)
-            myWin.lineEdit_8.setEnabled(True)
             pass
             #return 0
         elif  self.password != self.verify:
-            myWin.pushButton_10.setEnabled(True)
             myWin.pushButton_10.setText("密码有误")
-            myWin.lineEdit_4.setEnabled(True)
-            myWin.lineEdit_7.setEnabled(True)
-            myWin.lineEdit_8.setEnabled(True)
             #return 0
         else:
             md5_2.update(self.password)
             finalpassword = md5_2.hexdigest()
             checkresult = controller.useregister(self.username,finalpassword.upper())
             if checkresult == 1:
-                myWin.pushButton_10.setEnabled(True)
                 myWin.pushButton_10.setText("注册成功")
-                myWin.lineEdit_4.setEnabled(True)
-                myWin.lineEdit_7.setEnabled(True)
-                myWin.lineEdit_8.setEnabled(True)
             elif checkresult == 2:
-                myWin.pushButton_10.setEnabled(True)
                 myWin.pushButton_10.setText("ID被占用")
-                myWin.lineEdit_4.setEnabled(True)
-                myWin.lineEdit_7.setEnabled(True)
-                myWin.lineEdit_8.setEnabled(True)
             elif checkresult == 0:
-                myWin.pushButton_10.setEnabled(True)
                 myWin.pushButton_10.setText("网络错误")
-                myWin.lineEdit_4.setEnabled(True)
-                myWin.lineEdit_7.setEnabled(True)
-                myWin.lineEdit_8.setEnabled(True)
                 #return 0
+        myWin.pushButton_10.setEnabled(True)
+        myWin.lineEdit_4.setEnabled(True)
+        myWin.lineEdit_7.setEnabled(True)
+        myWin.lineEdit_8.setEnabled(True)
         pass
 
 ## 登录线程逻辑实现
@@ -255,6 +274,9 @@ class LoginThread(QThread):
     def run(self):
 
         ## 对密码进行加密
+        global md5
+        del md5
+        md5 = hashlib.md5()
         md5.update(str(myWin.lineEdit_3.text()).encode('utf-8'))
         password_login = md5.hexdigest()
         userid = (str(myWin.lineEdit_5.text()))
@@ -278,6 +300,8 @@ class LoginThread(QThread):
             ceshishow.quit()
             self.Sync_QThread = SyncThread()
             self.Sync_QThread.start()
+            myWin.comboBox_2.clear()
+            myWin.comboBox_2.addItems(controller.gainany(str(myWin.lineEdit_5.text())))
         elif login_result == 0:  ## 网络错误
             myWin.pushButton_9.setEnabled(True)
             myWin.pushButton_9.setText("网络错误")
@@ -312,6 +336,7 @@ class UserlistThread(QThread):
 
 if __name__ == "__main__":
     QtCore.QCoreApplication.setAttribute(QtCore.Qt.AA_EnableHighDpiScaling)
+    
     md5 = hashlib.md5()
     md5_2 = hashlib.md5()
     controller = Mysql()
