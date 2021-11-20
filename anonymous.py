@@ -425,6 +425,7 @@ if __name__ == "__main__":
     app = QApplication(sys.argv)
     myWin = MyMainForm()  ## 初始化
     myWin.setWindowTitle('匿名信')
+    myWin.setWindowIcon(QtGui.QIcon('logo.png'))
     myWin.show()          ## 将窗口显示在屏幕
 
     #sys.exit(app.exec_()) ## 确保完整退出

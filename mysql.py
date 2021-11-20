@@ -20,8 +20,7 @@ class Mysql():
             'toc',
             'fenced_code',
             'legacy_em',
-            'codehilite',
-            'addr'
+            'codehilite'
             ]
         ## MardDown 扩展配置
         self.modconfigs = {
@@ -239,17 +238,18 @@ class Mysql():
         except:
             print('无该用户')
             return 2
-        try:
-            dt = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-            print(self.sendmsg)
-            self.sendmsg = markdown.markdown(self.sendmsg,extensions=self.extensions,extension_configs=self.modconfigs)
-            print(self.senduser+'|'+self.sendnick+'|'+self.sendreceive+'|'+self.sendmsg)
-            self.doregister = pd.read_sql_query(f"INSERT INTO `letter` (`id`, `sender`, `receiver`, `status`, `date_send`, `del_time`, `text`) VALUES ('{str(self.senduser)}', '{str(self.sendnick)}', '{str(self.sendreceive)}', '', '{dt}', '', '{self.sendmsg}');",self.engine)
-            print("发送成功")
-            return 1 ## 返回发送成功结果
-        except:
-            print("发送成功")
-            return 1
+        #try:
+        dt = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        print(self.sendmsg)
+        self.sendmsg = markdown.markdown(self.sendmsg,extensions=self.extensions,extension_configs=self.modconfigs)
+        print(self.senduser+'|'+self.sendnick+'|'+self.sendreceive+'|'+self.sendmsg)
+        self.doregister = pd.read_sql_query(f"INSERT INTO `letter` (`id`, `sender`, `receiver`, `status`, `date_send`, `del_time`, `text`) VALUES ('{str(self.senduser)}', '{str(self.sendnick)}', '{str(self.sendreceive)}', '', '{dt}', '', '{self.sendmsg}');",self.engine)
+        print("test")
+        print("发送成功")
+        return 1 ## 返回发送成功结果
+        #except:
+        #    print("发送成功")
+        #    return 1
         #    return 0 ## 返回错误类型        
         #pass
 

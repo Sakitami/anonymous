@@ -48,8 +48,8 @@ class Users():
 #        return self.__b
 
 if __name__ == '__main__':
-    users = Users()
-    users.readletter(1)
+    #users = Users()
+    #users.readletter(1)
     #users.userlist()
     #users.readletter(10)
     pass

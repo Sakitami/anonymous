@@ -10,7 +10,8 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
-
+import ctypes
+ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("myappid")
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
@@ -505,4 +506,4 @@ class Ui_MainWindow(object):
 "<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">Sakitami用以提供给您本软件的原媒体，仅用于备份或存档之用。如果需要原媒体方可在计算机上使用该软件，您可以复制一份该软件副本仅用于备份或存档之用。除本《协议》中明文规定外，您不可复制本软件或随附本软件的印刷材料。  </p>\n"
 "<p style=\" margin-top:12px; margin-bottom:12px; margin-left:0px; margin-right:0px; -qt-block-indent:0; text-indent:0px;\">如您是在中华人民共和国取得此软件，下列有限保证适用于您： <span style=\" font-family:\'宋体\'; font-size:12pt;\">网上抄的。。。没有实际意义</span></p></body></html>"))
         self.tabWidget.setTabText(self.tabWidget.indexOf(self.tab_6), _translate("MainWindow", "关于"))
-        self.label.setText(_translate("MainWindow", "|匿名信v0.0.1|请使用MarkDown语法书写信件|"))
+        self.label.setText(_translate("MainWindow", "|匿名信DEMO-v0.0.2|请使用MarkDown语法书写信件|"))
