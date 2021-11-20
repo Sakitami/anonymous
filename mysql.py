@@ -14,13 +14,39 @@ class Mysql():
         ## 连接Mysql数据库
         self.engine = create_engine('mysql+pymysql://client:02e0be72e034672d2ba5c5b029b7ff2d12345678@45.32.84.140:3306/anonymous')
 
-
-    ## 
+        # 发送信件时的MarkDown配置
+        ## MarkDown扩展
+        self.extensions = [
+            'toc',
+            'fenced_code',
+            'legacy_em',
+            'codehilite',
+            'addr'
+            ]
+        ## MardDown 扩展配置
+        self.modconfigs = {
+            'codehilite': {
+            'noclasses': 'True',
+            'linenums': 'False',
+            'pygments_style': 'perldoc'
+            }
+        }
+    
+    def signread(self,time:str):
+        self.times = time
+        try:
+            print(self.times)
+            pd.read_sql_query(f"UPDATE letter SET status = 1 WHERE date_send = '{self.times}'",self.engine)
+        except:
+            return 1
     ## 添加/删除匿名名片
     def editany(self,userid:str,card:str):
         self.anycard = card
         self.anyid = userid.lower()
         self.anycardlist = []
+        if self.anycard == '':
+            print("输入为空")
+            return 4 ## 没有输入
         try:
             ## 将用户的匿名信息添加到列表中进行处理
             for i in range(1,4):
@@ -59,14 +85,18 @@ class Mysql():
     ## 获取匿名名片信息
     def gainany(self,id:str):
         self.any_id = id.lower()
-        self.usercheck = pd.read_sql_query(f'SELECT * FROM user WHERE id = \'{str(self.any_id)}\'',self.engine).values.tolist()
-        self.any_list = []
-        for i in self.usercheck:
-            self.any_list.append(i[3])
-            self.any_list.append(i[4])
-            self.any_list.append(i[5])
-            self.any_list.append(i[6])
-        return self.any_list
+        try:
+            self.usercheck = pd.read_sql_query(f'SELECT * FROM user WHERE id = \'{str(self.any_id)}\'',self.engine).values.tolist()
+            self.any_list = []
+            for i in self.usercheck:
+                self.any_list.append(i[3])
+                self.any_list.append(i[4])
+                self.any_list.append(i[5])
+                self.any_list.append(i[6])
+            return self.any_list
+        except:
+            print("网络错误")
+            return 0
 
     ## 用户登录
     def userlogin(self,id:str,password:str):
@@ -164,6 +194,33 @@ class Mysql():
         ## 将信件保存到本地, 将信件信息列表返回给主文件
         return self.readletter.values.tolist()
 
+    ## 读取已发邮件
+    def readsendmessage(self,id:str):
+        ## 接收用户id
+        self.userid = id.lower()
+        self.readsendcommand = f"SELECT * FROM letter WHERE id = '{self.userid}'"
+        ## 执行SQL查询语句,并返回csv文件
+        try:
+            os.remove(self.catalog+'\\data\\send.csv')
+        except:
+            pass
+        #try:
+        #self.letterfile = open(self.catalog+'\\data\\letters.csv','w')
+        #self.letterfile.close()
+        try:
+            self.readsendletter = pd.read_sql_query(self.readsendcommand,self.engine)
+            self.readsendletter = self.readsendletter[['receiver','status','date_send','del_time','text']]
+        except:
+            print("网络错误")
+            return 0 ## 网络错误则返回0
+        self.readsendletter.to_csv(self.catalog+'\\data\\send.csv')
+        print(self.readsendletter.values.tolist())
+        if self.readsendletter.values.tolist() == []:
+            print("没有信件")
+            return 2 ## 没有信件则返回2
+        ## 将信件保存到本地, 将信件信息列表返回给主文件
+        return self.readsendletter.values.tolist()
+
     ## 发送信件
     def sendmessage(self,user:str,nick:str,receiver:str,message:str):
         self.senduser = user.lower()
@@ -185,7 +242,7 @@ class Mysql():
         try:
             dt = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             print(self.sendmsg)
-            self.sendmsg = markdown.markdown(self.sendmsg,extensions=['markdown.extensions.toc','markdown.extensions.fenced_code'])
+            self.sendmsg = markdown.markdown(self.sendmsg,extensions=self.extensions,extension_configs=self.modconfigs)
             print(self.senduser+'|'+self.sendnick+'|'+self.sendreceive+'|'+self.sendmsg)
             self.doregister = pd.read_sql_query(f"INSERT INTO `letter` (`id`, `sender`, `receiver`, `status`, `date_send`, `del_time`, `text`) VALUES ('{str(self.senduser)}', '{str(self.sendnick)}', '{str(self.sendreceive)}', '', '{dt}', '', '{self.sendmsg}');",self.engine)
             print("发送成功")
@@ -198,6 +255,7 @@ class Mysql():
 
 if __name__ == '__main__':
     #test = Mysql()
+    #test.signread('2021-11-18 17:09:55')
     #test.editany('saki','qwer')
     #test.readmessage(str('Saki'))
     #test.sendmessage('hanyi2','BlackCat','Sakitami','woshidashabi')

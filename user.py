@@ -3,7 +3,7 @@ import pandas as pd
 import os
 #import markdown
 import webbrowser
-
+from mysql import Mysql
 
 
 class Users():
@@ -21,14 +21,26 @@ class Users():
     def readletter(self,index:int):
         self.__readmsg = pd.read_csv(self.catalog+"\\data\\letters.csv")
         print('1')
+
         self.__msg = open(self.catalog+"\\data\\letter.html","w")
-        self.__msg.write("<link href=\""+self.catalog+"\\css\\default.css\""+" rel=\"stylesheet\">")
+        self.__msg.write("<link href=\""+self.catalog+"\\css\\default.css\" rel=\"stylesheet\">")
         self.__msg.write(self.__readmsg.head(index).values.tolist()[index-1][5])
         self.__msg.close()
         webbrowser.open_new_tab(self.catalog+"\\data\\letter.html")
-
+        if self.__readmsg.head(index).values.tolist()[index-1][2] == 0:
+            controller = Mysql()
+            controller.signread(str(self.__readmsg.head(index).values.tolist()[index-1][3]))
         pass
 
+    def readsendletter(self,index:int):
+        self.__readsendmsg = pd.read_csv(self.catalog+"\\data\\send.csv")
+        print('1')
+
+        self.__msgs = open(self.catalog+"\\data\\letter.html","w")
+        self.__msgs.write("<link href=\""+self.catalog+"\\css\\default.css\" rel=\"stylesheet\">")
+        self.__msgs.write(self.__readsendmsg.head(index).values.tolist()[index-1][5])
+        self.__msgs.close()
+        webbrowser.open_new_tab(self.catalog+"\\data\\letter.html")
 #    def sendmsg(self):
 #        self.__fl = open(self.catalog+"\\bin\\message.pkl","rb")
 #        self.__b = pickle.load(self.__fl)
@@ -36,7 +48,8 @@ class Users():
 #        return self.__b
 
 if __name__ == '__main__':
-    #users = Users()
+    users = Users()
+    users.readletter(1)
     #users.userlist()
     #users.readletter(10)
     pass
