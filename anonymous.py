@@ -38,6 +38,20 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
         ## 点击手动刷新(已发信件)按钮
         self.pushButton_4.clicked.connect(self.ReadSendMessage)
 
+        ## 点击双向删除
+        self.pushButton_7.clicked.connect(self.DelAllLtr)
+        self.pushButton_13.clicked.connect(self.DelAllLtr2)
+
+
+    ## 启动双向删除线程
+    def DelAllLtr(self):
+        self.DelAllLetter_QThread = DelAllLetter()
+        self.DelAllLetter_QThread.start()
+
+    def DelAllLtr2(self):
+        self.DelAllLetter2_QThread = DelAllLetter2()
+        self.DelAllLetter2_QThread.start()
+
 
     ## 启动查看信件线程
     def ViewMsg(self):
@@ -125,7 +139,27 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
         self.AnonymousShow_QThread.start()
 
 
-## 查看已发信件逻辑实现
+## 双向删除信件线程逻辑实现
+class DelAllLetter(QThread):
+    trigger = pyqtBoundSignal(str)
+    def __init__(self):
+        super(DelAllLetter,self).__init__()
+        self.index1 = myWin.tableView_3.currentIndex().row()+1
+    def run(self):
+        print("WORKED!")
+        print(self.index1)
+        user_controller.delletter(self.index1)
+        pass ## TODO 好想摸鱼
+class DelAllLetter2(QThread):
+    trigger = pyqtBoundSignal(str)
+    def __init__(self):
+        super(DelAllLetter2,self).__init__()
+        self.index2 = myWin.tableView_4.currentIndex().row()+1
+    def run(self):
+        user_controller.delletter(self.index2)
+        pass ## TODO 好想摸鱼
+
+## 查看已发信件线程逻辑实现
 class SendMeMessageThread(QThread):  ## FIXME 线程冲突问题
     trigger = pyqtBoundSignal(str)
     def __init__(self):
@@ -379,6 +413,8 @@ class LoginThread(QThread):
             myWin.textEdit_2.setEnabled(True)
             myWin.groupBox_4.setEnabled(True)
             myWin.tableView_4.setEnabled(True)
+            myWin.pushButton_7.setEnabled(True)
+            myWin.pushButton_14.setEnabled(True)
             ceshishow = AnonymousShowThread()
             ceshishow.start()
             ceshishow.quit()

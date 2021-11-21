@@ -31,6 +31,16 @@ class Mysql():
             }
         }
     
+    ## 设置为删除
+    def setinvisible(self,dtime:str):
+        self.deltimes = dtime
+        try:
+            print(self.deltimes)
+            pd.read_sql_query(f"UPDATE letter SET visible = 0 WHERE date_send = '{self.deltimes}'",self.engine)
+        except:
+            return 1
+
+    ## 设置已读
     def signread(self,time:str):
         self.times = time
         try:
@@ -38,6 +48,7 @@ class Mysql():
             pd.read_sql_query(f"UPDATE letter SET status = 1 WHERE date_send = '{self.times}'",self.engine)
         except:
             return 1
+
     ## 添加/删除匿名名片
     def editany(self,userid:str,card:str):
         self.anycard = card
@@ -169,7 +180,7 @@ class Mysql():
         ## 接收用户id
         self.userid = id.lower()
         print(self.userid)
-        self.readcommand = f"SELECT * FROM letter WHERE receiver = '{self.userid}'"
+        self.readcommand = f"SELECT * FROM letter WHERE (receiver,visible) = ('{self.userid}',1)"
         print(self.readcommand)
         ## 执行SQL查询语句,并返回csv文件
         try:
@@ -197,7 +208,7 @@ class Mysql():
     def readsendmessage(self,id:str):
         ## 接收用户id
         self.userid = id.lower()
-        self.readsendcommand = f"SELECT * FROM letter WHERE id = '{self.userid}'"
+        self.readsendcommand = f"SELECT * FROM letter WHERE (id,visible) = ('{self.userid}',1)"
         ## 执行SQL查询语句,并返回csv文件
         try:
             os.remove(self.catalog+'\\data\\send.csv')
@@ -238,26 +249,26 @@ class Mysql():
         except:
             print('无该用户')
             return 2
-        #try:
-        dt = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-        print(self.sendmsg)
-        self.sendmsg = markdown.markdown(self.sendmsg,extensions=self.extensions,extension_configs=self.modconfigs)
-        print(self.senduser+'|'+self.sendnick+'|'+self.sendreceive+'|'+self.sendmsg)
-        self.doregister = pd.read_sql_query(f"INSERT INTO `letter` (`id`, `sender`, `receiver`, `status`, `date_send`, `del_time`, `text`) VALUES ('{str(self.senduser)}', '{str(self.sendnick)}', '{str(self.sendreceive)}', '', '{dt}', '', '{self.sendmsg}');",self.engine)
-        print("test")
-        print("发送成功")
-        return 1 ## 返回发送成功结果
-        #except:
-        #    print("发送成功")
-        #    return 1
-        #    return 0 ## 返回错误类型        
-        #pass
+        try:
+            dt = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            print(self.sendmsg)
+            self.sendmsg = markdown.markdown(self.sendmsg,extensions=self.extensions,extension_configs=self.modconfigs)
+            print(self.senduser+'|'+self.sendnick+'|'+self.sendreceive+'|'+self.sendmsg)
+            self.doregister = pd.read_sql_query(f"INSERT INTO `letter` (`id`, `sender`, `receiver`, `status`, `date_send`, `del_time`, `text`) VALUES ('{str(self.senduser)}', '{str(self.sendnick)}', '{str(self.sendreceive)}', '', '{dt}', '', '{self.sendmsg}');",self.engine)
+            print("test")
+            print("发送成功")
+            return 1 ## 返回发送成功结果
+        except:
+            print("发送成功")
+            return 1
+            #return 0 ## 返回错误类型        
+        pass
 
 if __name__ == '__main__':
     #test = Mysql()
     #test.signread('2021-11-18 17:09:55')
     #test.editany('saki','qwer')
-    #test.readmessage(str('Saki'))
+    #test.readmessage(str('Sakitami'))
     #test.sendmessage('hanyi2','BlackCat','Sakitami','woshidashabi')
     #test.readuserlist()
     #test.useregister('wrewr','4DA6EDB16DAD7148938AC3463EDACD62')
