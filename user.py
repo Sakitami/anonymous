@@ -26,6 +26,14 @@ class Users():
         print(selfl__deldate)
         controller2 = Mysql()
         controller2.setinvisible(selfl__deldate)
+
+    def delletter2(self,index:int):
+        self.delindex2 = index
+        self.__delfile2 = pd.read_csv(self.catalog+"\\data\\send.csv")
+        selfl__deldate2 = str(self.__delfile2.head(self.delindex2).values.tolist()[self.delindex2-1][3])
+        print(selfl__deldate2)
+        controller3 = Mysql()
+        controller3.setinvisible(selfl__deldate2)
         
     def readletter(self,index:int):
         self.__readmsg = pd.read_csv(self.catalog+"\\data\\letters.csv")

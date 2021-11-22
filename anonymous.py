@@ -7,12 +7,12 @@ from mysql import Mysql
 from user import Users
 import time
 import hashlib
+import qtvscodestyle as qtvsc
 
 class MyMainForm(QMainWindow, Ui_MainWindow):
     def __init__(self, parent=None):
         super(MyMainForm, self).__init__(parent)
         self.setupUi(self)
-
 
         # 该部分为前后端连接
         ## 点击登录按钮
@@ -42,14 +42,33 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
         self.pushButton_7.clicked.connect(self.DelAllLtr)
         self.pushButton_13.clicked.connect(self.DelAllLtr2)
 
+        #
+        #
+
+    ## 自动刷新邮件线程
+    def autosyncletter(self,check:int):
+        if check == 1:
+            self.ReadMessage_QThread.start()
+        elif check == 2:
+            self.SendMeMessage_QThread.start()
 
     ## 启动双向删除线程
     def DelAllLtr(self):
+        self.pushButton_7.setDisabled(True)
+        self.pushButton_7.setText("删除中...")
+        self.pushButton_8.setDisabled(True)
+        self.pushButton_2.setDisabled(True)
         self.DelAllLetter_QThread = DelAllLetter()
+        #self.DelAllLetter_QThread.trigger.connect(self.autosyncletter)
         self.DelAllLetter_QThread.start()
 
     def DelAllLtr2(self):
+        self.pushButton_13.setDisabled(True)
+        self.pushButton_13.setText("删除中")
+        self.pushButton_14.setDisabled(True)
+        self.pushButton_4.setDisabled(True)
         self.DelAllLetter2_QThread = DelAllLetter2()
+        #self.DelAllLetter2_QThread.trigger.connect(self.autosyncletter)
         self.DelAllLetter2_QThread.start()
 
 
@@ -78,8 +97,8 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
         self.EditAny_QThread = EditanyThread()
         self.EditAny_QThread.start()
         self.EditAny_QThread.quit()
-        self.EditShow_QThread = AnonymousShowThread()
         print("dfdf")
+        self.EditShow_QThread = AnonymousShowThread()
         self.EditShow_QThread.start()
 
     ## 启动登录线程
@@ -88,7 +107,6 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
         self.groupBox_3.setDisabled(True)
         self.groupBox_4.setDisabled(True)
         self.pushButton_9.setText("登录中...")
-        
         self.Login_QThread = LoginThread()
         self.Login_QThread.start()
 
@@ -141,22 +159,45 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
 
 ## 双向删除信件线程逻辑实现
 class DelAllLetter(QThread):
-    trigger = pyqtBoundSignal(str)
+    trigger = pyqtBoundSignal(int)
     def __init__(self):
         super(DelAllLetter,self).__init__()
-        self.index1 = myWin.tableView_3.currentIndex().row()+1
+        
     def run(self):
+        self.index1 = myWin.tableView_3.currentIndex().row()+1
         print("WORKED!")
         print(self.index1)
-        user_controller.delletter(self.index1)
+        if self.index1 == 0:
+            print("没有选择")
+            myWin.pushButton_2.setEnabled(True)
+            myWin.pushButton_8.setEnabled(True)
+            myWin.pushButton_7.setEnabled(True)
+            myWin.pushButton_7.setText("双向删除")
+        else:
+            user_controller.delletter(self.index1)
+            myWin.pushButton_7.setText("请刷新")
+            myWin.pushButton_2.setEnabled(True)
+        #self.trigger.emit(1)
         pass ## TODO 好想摸鱼
 class DelAllLetter2(QThread):
-    trigger = pyqtBoundSignal(str)
+    trigger = pyqtBoundSignal(int)
     def __init__(self):
         super(DelAllLetter2,self).__init__()
-        self.index2 = myWin.tableView_4.currentIndex().row()+1
+        
     def run(self):
-        user_controller.delletter(self.index2)
+        self.index2 = myWin.tableView_4.currentIndex().row()+1
+        print("WORKED!")
+        if self.index2 == 0:
+            print("没有选择")
+            myWin.pushButton_4.setEnabled(True)
+            myWin.pushButton_13.setEnabled(True)
+            myWin.pushButton_14.setEnabled(True)
+            myWin.pushButton_13.setText("双向删除")
+        else:
+            user_controller.delletter2(self.index2)
+            myWin.pushButton_13.setText("请刷新")
+            myWin.pushButton_4.setEnabled(True)
+        #self.trigger.emit(2)
         pass ## TODO 好想摸鱼
 
 ## 查看已发信件线程逻辑实现
@@ -164,10 +205,11 @@ class SendMeMessageThread(QThread):  ## FIXME 线程冲突问题
     trigger = pyqtBoundSignal(str)
     def __init__(self):
         super(SendMeMessageThread,self).__init__()
-        self.sendmsguserid = str(myWin.lineEdit_5.text())
+        
         self.module2 = QtGui.QStandardItemModel()
         self.module2.setHorizontalHeaderLabels(['收件人','是否已读','发件时间','清除时间'])
     def run(self):
+        self.sendmsguserid = str(myWin.lineEdit_5.text())
         self.readsendmsglist = controller.readsendmessage(self.sendmsguserid)
         if self.readsendmsglist == 0:
             myWin.pushButton_4.setText("网络错误")
@@ -189,6 +231,9 @@ class SendMeMessageThread(QThread):  ## FIXME 线程冲突问题
         #        self.module.setItem(i,j,QtGui.QStandardItem(str(self.readmsglist[i][j])))
         myWin.tableView_4.setModel(self.module2)
         myWin.pushButton_4.setEnabled(True)
+        myWin.pushButton_13.setEnabled(True)
+        myWin.pushButton_14.setEnabled(True)
+        myWin.pushButton_13.setText("双向删除")
 
 ## 查看信件线程逻辑实现
 class ViewMsgMK(QThread):
@@ -247,16 +292,18 @@ class PushMessageThread(QThread):
         myWin.lineEdit_6.setEnabled(True)
         myWin.comboBox_2.setEnabled(True)
         myWin.textEdit_2.setEnabled(True)
+        myWin.pushButton_7.setText("双向删除")
 
 ## 获取信件线程逻辑实现
 class ReadMessageThread(QThread):  ## FIXME 线程冲突问题
     trigger = pyqtBoundSignal(str)
     def __init__(self):
         super(ReadMessageThread,self).__init__()
-        self.readmsguserid = str(myWin.lineEdit_5.text())
+        
         self.module = QtGui.QStandardItemModel()
         self.module.setHorizontalHeaderLabels(['发件人','是否已读','发件时间','清除时间'])
     def run(self):
+        self.readmsguserid = str(myWin.lineEdit_5.text())
         self.readmsglist = controller.readmessage(self.readmsguserid)
         if self.readmsglist == 0:
             myWin.pushButton_2.setText("网络错误")
@@ -278,6 +325,8 @@ class ReadMessageThread(QThread):  ## FIXME 线程冲突问题
         #        self.module.setItem(i,j,QtGui.QStandardItem(str(self.readmsglist[i][j])))
         myWin.tableView_3.setModel(self.module)
         myWin.pushButton_2.setEnabled(True)
+        myWin.pushButton_8.setEnabled(True)
+        myWin.pushButton_7.setEnabled(True)
         
 
         pass ## TODO 获取信件线程逻辑实现
@@ -286,9 +335,10 @@ class ReadMessageThread(QThread):  ## FIXME 线程冲突问题
 class AnonymousShowThread(QThread):
     trigger = pyqtBoundSignal(str)
     def __init__(self):
-        self.showanyuserid = (str(myWin.lineEdit_5.text()))
+        
         super(AnonymousShowThread,self).__init__()
     def run(self):
+        self.showanyuserid = (str(myWin.lineEdit_5.text()))
         time.sleep(5)
         myWin.pushButton_2.setDisabled(True)
         myWin.pushButton.setText("刷新中...")
@@ -306,7 +356,8 @@ class AnonymousShowThread(QThread):
         myWin.lineEdit.setEnabled(True)
         myWin.pushButton.setEnabled(True)
         myWin.pushButton_2.setEnabled(True)
-        myWin.pushButton_4.setEnabled(True)       
+        myWin.pushButton_4.setEnabled(True)
+        myWin.pushButton_13.setEnabled(True)
 
 ## 修改匿名线程逻辑实现
 class EditanyThread(QThread):
@@ -342,8 +393,9 @@ class SyncThread(QThread):
     trigger = pyqtBoundSignal(str)
     def __init__(self):
         super(SyncThread,self).__init__()
-        self.sync_user = (str(myWin.lineEdit_5.text()))
+        
     def run(self):
+        self.sync_user = (str(myWin.lineEdit_5.text()))
         while True:
             time.sleep(60)
             myWin.Userlist()
@@ -356,15 +408,16 @@ class RegisterThread(QThread):
     trigger = pyqtBoundSignal(str)
     def __init__(self):
         super(RegisterThread,self).__init__()
+
+    def run(self):
+        ## 判断用户两次输入密码是否相等        
         self.username = str(myWin.lineEdit_7.text())
         self.password = str(myWin.lineEdit_4.text()).encode('utf-8')
         self.verify = str(myWin.lineEdit_8.text()).encode('utf-8')
-    def run(self):
-        ## 判断用户两次输入密码是否相等
         if  self.username == '' or str(myWin.lineEdit_4) == '' or str(myWin.lineEdit_8) =='':
             
             myWin.pushButton_10.setText("非法输入")
-            pass
+            self.quit()
             #return 0
         elif  self.password != self.verify:
             myWin.pushButton_10.setText("密码有误")
@@ -381,7 +434,8 @@ class RegisterThread(QThread):
                 myWin.pushButton_10.setText("网络错误")
                 #return 0
         myWin.groupBox_4.setEnabled(True)
-        myWin.groupBox_3.setEnabled(True)
+        if myWin.lineEdit_5.text()!= '':
+            myWin.groupBox_3.setEnabled(True)
         pass
 
 ## 登录线程逻辑实现
@@ -413,7 +467,6 @@ class LoginThread(QThread):
             myWin.textEdit_2.setEnabled(True)
             myWin.groupBox_4.setEnabled(True)
             myWin.tableView_4.setEnabled(True)
-            myWin.pushButton_7.setEnabled(True)
             myWin.pushButton_14.setEnabled(True)
             ceshishow = AnonymousShowThread()
             ceshishow.start()
@@ -460,10 +513,11 @@ if __name__ == "__main__":
     user_controller = Users()
     app = QApplication(sys.argv)
     myWin = MyMainForm()  ## 初始化
+    stylesheet = qtvsc.load_stylesheet(qtvsc.Theme.LIGHT_VS)
     myWin.setWindowTitle('匿名信')
     myWin.setWindowIcon(QtGui.QIcon('logo.png'))
+    myWin.setStyleSheet(stylesheet)
     myWin.show()          ## 将窗口显示在屏幕
-
     #sys.exit(app.exec_()) ## 确保完整退出
     app.exec_()
     controller.offline(str(myWin.lineEdit_3.text()))
