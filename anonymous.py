@@ -84,11 +84,9 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
     ## 激活阅读信件按钮
     def EnableViewMsg(self):
         self.pushButton_8.setEnabled(True)
-        print('OK!')
     ## 激活阅读信件(已读)按钮
     def EnableSendViewMsg(self):
         self.pushButton_14.setEnabled(True)
-        print('OK!')
     
     ## 启动修改匿名线程
     def EditAny(self):
@@ -97,7 +95,6 @@ class MyMainForm(QMainWindow, Ui_MainWindow):
         self.EditAny_QThread = EditanyThread()
         self.EditAny_QThread.start()
         self.EditAny_QThread.quit()
-        print("dfdf")
         self.EditShow_QThread = AnonymousShowThread()
         self.EditShow_QThread.start()
 
@@ -165,10 +162,8 @@ class DelAllLetter(QThread):
         
     def run(self):
         self.index1 = myWin.tableView_3.currentIndex().row()+1
-        print("WORKED!")
-        print(self.index1)
         if self.index1 == 0:
-            print("没有选择")
+            ## 没有选择
             myWin.pushButton_2.setEnabled(True)
             myWin.pushButton_8.setEnabled(True)
             myWin.pushButton_7.setEnabled(True)
@@ -186,9 +181,8 @@ class DelAllLetter2(QThread):
         
     def run(self):
         self.index2 = myWin.tableView_4.currentIndex().row()+1
-        print("WORKED!")
         if self.index2 == 0:
-            print("没有选择")
+            ## 没有选择
             myWin.pushButton_4.setEnabled(True)
             myWin.pushButton_13.setEnabled(True)
             myWin.pushButton_14.setEnabled(True)
@@ -216,7 +210,6 @@ class SendMeMessageThread(QThread):  ## FIXME 线程冲突问题
         elif self.readsendmsglist == 2:
             myWin.pushButton_4.setText("手动刷新")
         else:
-            print(len(self.readsendmsglist[0]))
             for i in range(0,len(self.readsendmsglist)):
                 for j in range(0,len(self.readsendmsglist[i])-1):
                     if self.readsendmsglist[i][j] == 0:
@@ -241,12 +234,7 @@ class ViewMsgMK(QThread):
     def __init__(self):
         super(ViewMsgMK,self).__init__()
     def run(self):
-        print("开始!!!!!!!!!!!!!!!!!!!!")
-        print(myWin.tableView_3.currentIndex().row())
-        if int(myWin.tableView_3.currentIndex().row()) == -1 :
-            print("没有选择")
-        else:
-            print(myWin.tableView_3.currentIndex().row())
+        if int(myWin.tableView_3.currentIndex().row()) != -1 :
             user_controller.readletter(myWin.tableView_3.currentIndex().row()+1)
             pass ## TODO 查看信件
 
@@ -256,12 +244,7 @@ class ViewSendMsgMK(QThread):
     def __init__(self):
         super(ViewSendMsgMK,self).__init__()
     def run(self):
-        print("开始!!!!!!!!!!!!!!!!!!!!")
-        print(myWin.tableView_4.currentIndex().row())
-        if int(myWin.tableView_4.currentIndex().row()) == -1 :
-            print("没有选择")
-        else:
-            print(myWin.tableView_4.currentIndex().row())
+        if int(myWin.tableView_4.currentIndex().row()) != -1 :
             user_controller.readsendletter(myWin.tableView_4.currentIndex().row()+1)
             pass ## TODO 查看信件
 
@@ -272,10 +255,8 @@ class PushMessageThread(QThread):
         super(PushMessageThread,self).__init__()
     def run(self):
         strtest = myWin.textEdit_2.toPlainText()## (repr(myWin.textEdit_2.toPlainText()))
-        print(myWin.lineEdit_6.text())
-        if myWin.textEdit_2.toPlainText() == '' or myWin.lineEdit_6.text() == '':
+        if myWin.textEdit_2.toPlainText() == '' or myWin.lineEdit_6.text() == '':  ## 信件为空
             myWin.pushButton_3.setText("有空项")
-            print('信件为空')
         elif myWin.comboBox_2.currentText() == '':
             myWin.pushButton_3.setText("无匿名值")
         else:
@@ -310,7 +291,6 @@ class ReadMessageThread(QThread):  ## FIXME 线程冲突问题
         elif self.readmsglist == 2:
             myWin.pushButton_2.setText("手动刷新")
         else:
-            print(len(self.readmsglist[0]))
             for i in range(0,len(self.readmsglist)):
                 for j in range(0,len(self.readmsglist[i])-1):
                     if self.readmsglist[i][j] == 0:
@@ -342,13 +322,11 @@ class AnonymousShowThread(QThread):
         time.sleep(5)
         myWin.pushButton_2.setDisabled(True)
         myWin.pushButton.setText("刷新中...")
-        print("开始工作!")
         self.anylist = controller.gainany(self.showanyuserid)
         if self.anylist == 0:
             myWin.pushButton.setText("网络错误")
         else:
             self.anylist.pop()
-            print(self.anylist)
             myWin.listWidget_2.addItems(self.anylist)
             myWin.listWidget_2.clear()
             myWin.listWidget_2.addItems(self.anylist)
@@ -401,7 +379,6 @@ class SyncThread(QThread):
             myWin.Userlist()
             #myWin.ReadMessage()
             #controller.readmessage(id=self.sync_user)
-            print('被执行')
 
 ## 注册线程逻辑实现
 class RegisterThread(QThread):
@@ -484,7 +461,6 @@ class LoginThread(QThread):
             myWin.groupBox_4.setEnabled(True)
             myWin.pushButton_9.setText("登录失败")
 
-        print(password_login+' '+userid)
         pass
 
 ## 用户列表线程逻辑实现
@@ -513,7 +489,7 @@ if __name__ == "__main__":
     user_controller = Users()
     app = QApplication(sys.argv)
     myWin = MyMainForm()  ## 初始化
-    stylesheet = qtvsc.load_stylesheet(qtvsc.Theme.LIGHT_VS)
+    stylesheet = qtvsc.load_stylesheet(qtvsc.Theme.DARK_VS)
     myWin.setWindowTitle('匿名信')
     myWin.setWindowIcon(QtGui.QIcon('logo.png'))
     myWin.setStyleSheet(stylesheet)

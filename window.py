@@ -9,9 +9,17 @@
 
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-
+import platform
 import ctypes
-ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("myappid")
+
+def UsePlatform( ):
+    sysstr = platform.system()
+    if(sysstr =="Windows"):
+        ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID("myappid")
+    else:
+        pass
+
+UsePlatform()
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")

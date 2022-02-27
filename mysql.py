@@ -44,7 +44,6 @@ class Mysql():
     def signread(self,time:str):
         self.times = time
         try:
-            print(self.times)
             pd.read_sql_query(f"UPDATE letter SET status = 1 WHERE date_send = '{self.times}'",self.engine)
         except:
             return 1
@@ -55,17 +54,16 @@ class Mysql():
         self.anyid = userid.lower()
         self.anycardlist = []
         if self.anycard == '':
-            print("输入为空")
+            # print("输入为空")
             return 4 ## 没有输入
         try:
             ## 将用户的匿名信息添加到列表中进行处理
             for i in range(1,4):
                 self.editanycheck = pd.read_sql_query(f"SELECT nick{i} FROM user WHERE id = '{self.anyid}'",self.engine).values.tolist()
                 self.anycardlist.append(self.editanycheck[0][0])
-                print(self.anycardlist)
                 #self.anycardlist.append(str(self.editanycheck))
         except:
-            print("网络错误")
+            # print("网络错误")
             return 0 ## 网络错误的返回
         for i in range(0,3):
             print(self.anycardlist[i])
@@ -73,13 +71,13 @@ class Mysql():
                 try:
                     self.addcard = pd.read_sql_query(f"UPDATE user SET nick{i+1} = '{self.anycard}' WHERE id = '{self.anyid}';",self.engine)
                 except:
-                    print("添加完成")
+                    # print("添加完成")
                     return 2
             if self.anycardlist[i] == self.anycard:
                 try:
                     self.removecard = pd.read_sql_query(f"UPDATE user SET nick{i+1} = null WHERE id = '{self.anyid}';",self.engine)
                 except:
-                    print("删除完成")
+                    # print("删除完成")
                     return 1
         return 3 ## 名片已满
 
@@ -105,7 +103,7 @@ class Mysql():
                 self.any_list.append(i[6])
             return self.any_list
         except:
-            print("网络错误")
+            # print("网络错误")
             return 0
 
     ## 用户登录
@@ -116,23 +114,23 @@ class Mysql():
         try:
             self.usercheck = pd.read_sql_query(f'SELECT * FROM user WHERE id = \'{self.id}\'',self.engine).values.tolist()
         except:
-            print("登陆失败,无网络连接")
+            # print("登陆失败,无网络连接")
             return 0
         try:
             self.usercheck[0][1]
         except:
-            print('登陆失败!请检查用户名或密码是否错误')
+            # print('登陆失败!请检查用户名或密码是否错误')
             return 2
         #print(self.usercheck[0][1])
         if self.usercheck[0][1] != self.password:
-            print("登录失败!请检查用户名或密码是否错误")
+            # print("登录失败!请检查用户名或密码是否错误")
             return 2
         try: ## TODO 待解决的登录致命错误
             self.loginuser = pd.read_sql_query(self.logincommand,self.engine)
         except:
-            print('登陆成功!')
+            # print('登陆成功!')
             return 1
-        print("登陆成功!")
+        # print("登陆成功!")
         return 1
 
     ## 用户注册
@@ -141,18 +139,18 @@ class Mysql():
         self.password=password
         try:
             self.checkid = pd.read_sql_query(f"SELECT * from user WHERE id = '{str(self.id).lower()}'",self.engine).values.tolist()
-            print(self.checkid)
+            # print(self.checkid)
             #return 0
         except:
-            print("网络错误")
+            # print("网络错误")
             return 0
         if self.checkid != []:
-            print("已被占用的id")
+            # print("已被占用的id")
             return 2
         try:
             self.doregister = pd.read_sql_query(f"INSERT INTO `user` (`id`, `password`, `status`, `nick1`, `nick2`, `nick3`, `nick_enable`) VALUES ('{str(self.id)}', '{str(self.password)}', '0', '', '', '', '');",self.engine)
         except:
-            print("注册成功")
+            # print("注册成功")
             return 1
 
     ## 读取用户列表
@@ -161,7 +159,7 @@ class Mysql():
         try:
             self.readuser = pd.read_sql_query(self.command[1],self.engine).values.tolist()
         except:
-            print("网络连接失败！")
+            # print("网络连接失败！")
             return 0
         ## 将用户列表保存到本地
         try:
@@ -179,9 +177,7 @@ class Mysql():
     def readmessage(self,id:str):
         ## 接收用户id
         self.userid = id.lower()
-        print(self.userid)
         self.readcommand = f"SELECT * FROM letter WHERE (receiver,visible) = ('{self.userid}',1)"
-        print(self.readcommand)
         ## 执行SQL查询语句,并返回csv文件
         try:
             os.remove(self.catalog+'\\data\\letters.csv')
@@ -194,12 +190,10 @@ class Mysql():
             self.readletter = pd.read_sql_query(self.readcommand,self.engine)
             self.readletter = self.readletter[['sender','status','date_send','del_time','text']]
         except:
-            print("网络错误")
             return 0 ## 网络错误则返回0
         self.readletter.to_csv(self.catalog+'\\data\\letters.csv')
         print(self.readletter.values.tolist())
         if self.readletter.values.tolist() == []:
-            print("没有信件")
             return 2 ## 没有信件则返回2
         ## 将信件保存到本地, 将信件信息列表返回给主文件
         return self.readletter.values.tolist()
@@ -221,12 +215,10 @@ class Mysql():
             self.readsendletter = pd.read_sql_query(self.readsendcommand,self.engine)
             self.readsendletter = self.readsendletter[['receiver','status','date_send','del_time','text']]
         except:
-            print("网络错误")
             return 0 ## 网络错误则返回0
         self.readsendletter.to_csv(self.catalog+'\\data\\send.csv')
         print(self.readsendletter.values.tolist())
         if self.readsendletter.values.tolist() == []:
-            print("没有信件")
             return 2 ## 没有信件则返回2
         ## 将信件保存到本地, 将信件信息列表返回给主文件
         return self.readsendletter.values.tolist()
@@ -242,42 +234,22 @@ class Mysql():
         try:
             self.usercheck = pd.read_sql_query(f'SELECT * FROM user WHERE id = \'{self.sendreceive}\'',self.engine).values.tolist()
         except:
-            print("无网络连接")
-            return 0
+            return 0 # 无网络连接则返回0
         try:
             self.usercheck[0][1]
         except:
-            print('无该用户')
-            return 2
+            return 2 # 无该用户则返回2
         try:
             dt = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             print(self.sendmsg)
             self.sendmsg = markdown.markdown(self.sendmsg,extensions=self.extensions,extension_configs=self.modconfigs)
             print(self.senduser+'|'+self.sendnick+'|'+self.sendreceive+'|'+self.sendmsg)
             self.doregister = pd.read_sql_query(f"INSERT INTO `letter` (`id`, `sender`, `receiver`, `status`, `date_send`, `del_time`, `text`) VALUES ('{str(self.senduser)}', '{str(self.sendnick)}', '{str(self.sendreceive)}', '', '{dt}', '', '{self.sendmsg}');",self.engine)
-            print("test")
-            print("发送成功")
             return 1 ## 返回发送成功结果
         except:
-            print("发送成功")
-            return 1
+            return 1 ## 上面的Try可能会遇到部分问题，但信息几乎都是成功上传的，所以这里返回正常值1
             #return 0 ## 返回错误类型        
         pass
 
 if __name__ == '__main__':
-    #test = Mysql()
-    #test.signread('2021-11-18 17:09:55')
-    #test.editany('saki','qwer')
-    #test.readmessage(str('Sakitami'))
-    #test.sendmessage('hanyi2','BlackCat','Sakitami','woshidashabi')
-    #test.readuserlist()
-    #test.useregister('wrewr','4DA6EDB16DAD7148938AC3463EDACD62')
-    #test.sendmessage('Hello World!')
-    #print(test.readmessage()[0][2])
-    #for i in test.readmessage():
-    #    list.append(i)
-    #print(list)
-    #print(type(test.readmessage()))
-    #print(str(test.readmessage()))
-    #test.readmessage()
     pass
